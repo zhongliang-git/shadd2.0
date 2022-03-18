@@ -1,0 +1,198 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aidex.shadd.purchase.mapper.TOfferMapper">
+
+    <sql id="tOfferColumns">
+        a.siteId as "siteid",
+
+        a.price as "price",
+
+        a.purchaseId as "purchaseId",
+
+        a.remark as "remark",
+
+        a.id as "id",
+
+        a.create_by as "createBy",
+
+        a.create_dept as "createDept",
+
+        a.create_time as "createTime",
+
+        a.update_by as "updateBy",
+
+        a.update_time as "updateTime",
+
+        a.update_ip as "updateIp",
+
+        a.version as "version",
+
+        a.del_flag as "delFlag"
+
+    </sql>
+
+    <sql id="tOfferJoins">
+    </sql>
+
+    <select id="get" resultType="TOffer">
+        SELECT
+            <include refid="tOfferColumns"/>
+        FROM t_offer a
+        <include refid="tOfferJoins"/>
+        WHERE a.id = #{id}
+    </select>
+
+
+    <resultMap id="purchaseModel" type="com.aidex.shadd.purchase.domain.TOffer">
+        <collection property="sites" column="tsiteid" javaType="List"
+                    ofType="com.aidex.shadd.site.domain.TSite"
+                    select="com.aidex.shadd.site.mapper.TSiteMapper.querySiteById"/>
+    </resultMap>
+
+    <select id="queryTOfferByPurchaseId" resultMap="purchaseModel">
+        SELECT a.siteid as tsiteid,
+        <include refid="tOfferColumns"/>
+        FROM t_offer a
+        <include refid="tOfferJoins"/>
+        WHERE a.purchaseId = #{purchaseId}
+    </select>
+
+    <select id="findList" resultType="TOffer">
+        SELECT
+            <include refid="tOfferColumns"/>
+        FROM t_offer a
+        <include refid="tOfferJoins"/>
+
+        <where>
+            a.del_flag = #{DEL_FLAG_NORMAL}
+            <if test="siteid != null and siteid != ''">
+                and a.siteId like concat('%', #{siteid}, '%')
+            </if>
+            <if test="price != null ">
+                AND a.price = #{price}
+            </if>
+            <if test="purchaseId != null and purchaseId != ''">
+                and a.purchaseId like concat('%', #{purchaseId}, '%')
+            </if>
+        </where>
+        <choose>
+            <when test="page !=null and page.orderByColumn != null and page.orderByColumn != ''">
+                ORDER BY ${page.orderByColumn}
+            </when>
+            <otherwise>
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="findListWithUnique" resultType="TOffer">
+        SELECT
+            a.id
+        FROM t_offer a
+        <include refid="tOfferJoins"/>
+        <where>
+            a.del_flag = #{DEL_FLAG_NORMAL}
+            <if test="notEqualId != null and notEqualId != ''">
+                AND id != #{notEqualId}
+            </if>
+        </where>
+    </select>
+
+
+    <insert id="insert">
+        INSERT INTO t_offer(
+            siteId,
+
+            price,
+
+            purchaseId,
+
+            remark,
+
+            id,
+
+            create_by,
+
+            create_dept,
+
+            create_time,
+
+            update_by,
+
+            update_time,
+
+            update_ip,
+
+            version,
+
+            del_flag
+
+        ) VALUES (
+            #{siteid},
+
+            #{price},
+
+            #{purchaseId},
+
+            #{remark},
+
+            #{id},
+
+            #{createBy},
+
+            #{createDept},
+
+            #{createTime},
+
+            #{updateBy},
+
+            #{updateTime},
+
+            #{updateIp},
+
+            #{version},
+
+            #{delFlag}
+
+        )
+    </insert>
+
+    <update id="update">
+        UPDATE t_offer SET
+            siteId = #{siteid},
+            price = #{price},
+            purchaseId = #{purchaseId},
+            remark = #{remark},
+            update_by = #{updateBy},
+            update_time = #{updateTime},
+            update_ip = #{updateIp},
+            version = version + 1
+        WHERE id = #{id} and version = #{version}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE t_offer SET
+            status = #{status},
+            version = version + 1
+        WHERE id = #{id}
+    </update>
+
+    <update id="delete">
+        UPDATE t_offer SET
+            del_flag = #{DEL_FLAG_DELETE}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteTOfferByIds">
+        DELETE FROM t_offer
+        WHERE id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <delete id="deleteByPurchaseId">
+        DELETE FROM t_offer
+        WHERE purchaseId = #{purchaseId}
+    </delete>
+
+</mapper>

@@ -12,6 +12,11 @@
     <artifactId>aidex-shadd</artifactId>
     <dependencies>
 
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-test</artifactId>
+            <scope>test</scope>
+        </dependency>
         <!-- 通用工具-->
         <dependency>
             <groupId>com.aidex</groupId>

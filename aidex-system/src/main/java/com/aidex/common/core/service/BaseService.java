@@ -39,7 +39,7 @@ public interface  BaseService<T> {
 	 * @param entity
 	 * @return
 	 */
-	public PageInfo<T> findPage(T entity);
+	 PageInfo<T> findPage(T entity);
 
 	/**
 	 * 保存
@@ -47,7 +47,7 @@ public interface  BaseService<T> {
 	 * @return boolean
 	 */
 	@Transactional(readOnly = false)
-	public boolean save(T entity);
+	 boolean save(T entity);
 
 	/**
 	 * 删除数据（一般为逻辑删除，更新del_flag字段为1）
@@ -55,6 +55,12 @@ public interface  BaseService<T> {
 	 * @return
 	 */
 	@Transactional(readOnly = false)
-	public boolean remove(T entity);
+	boolean remove(T entity);
 
+	/**
+	 * 分页查询
+	 * @param entity
+	 * @return
+	 */
+	void page(T entity);
 }

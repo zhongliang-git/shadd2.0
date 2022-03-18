@@ -1,0 +1,235 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aidex.shadd.purchase.mapper.TPurchaseMapper">
+
+    <sql id="tPurchaseColumns">
+        a.image as "image",
+
+        a.factoryId as "factoryid",
+
+        a.productId as "productid",
+
+        a.exw as "exw",
+
+        a.remark as "remark",
+
+        a.id as "id",
+
+        a.create_by as "createBy",
+
+        a.create_dept as "createDept",
+
+        a.create_time as "createTime",
+
+        a.update_by as "updateBy",
+
+        a.update_time as "updateTime",
+
+        a.update_ip as "updateIp",
+
+        a.version as "version",
+
+        a.del_flag as "delFlag",
+
+        a.imageDetailList as imageDetailList
+
+    </sql>
+
+    <sql id="tPurchaseJoins">
+    </sql>
+
+    <select id="get" resultType="TPurchase">
+        SELECT
+            <include refid="tPurchaseColumns"/>
+        FROM t_purchase a
+        <include refid="tPurchaseJoins"/>
+        WHERE a.id = #{id}
+    </select>
+
+    <resultMap id="purchaseListBySite" type="com.aidex.shadd.purchase.domain.TPurchase">
+        <result property="id" column="id"/>
+        <result property="productName" column="productName"/>
+        <collection property="offerList" column="qid"
+                    ofType="com.aidex.shadd.purchase.vo.OfferSiteVo">
+            <result property="siteId" column="siteId"/>
+            <result property="siteName" column="siteName"/>
+        </collection>
+    </resultMap>
+
+    <select id="findPurchaseList" resultMap="purchaseListBySite">
+        SELECT
+            a.id AS "id",s.name as siteName, s.id as "siteId",o.id as "qid",
+            CONCAT( b.minerals, "|", b.specification ) AS productName
+        FROM
+            t_purchase as a INNER JOIN t_product b ON a.productId = b.id
+            left join t_offer as o on o.purchaseId = a.id
+            inner join t_site as s on s.id = o.siteId
+        WHERE a.factoryId = #{factoryid} and a.del_flag = '0' and
+              b.del_flag = '0'
+        <if test="productName != null and productName != ''">
+              (CONCAT( b.minerals, "|", b.specification ) like
+             concat('%', #{productName}, '%')  or
+             b.minerals like concat('%', #{productName}, '%') or
+             b.specification like concat('%', #{productName}, '%'))
+        </if>
+    </select>
+
+    <resultMap id="purchaseModel" type="com.aidex.shadd.purchase.domain.TPurchase">
+        <association property="product" column="tproductid"
+                     javaType="com.aidex.shadd.product.domain.TProduct"
+                     select="com.aidex.shadd.product.mapper.TProductMapper.queryTProductById"/>
+        <collection property="offers" column="tid" javaType="List"
+                     ofType="com.aidex.shadd.purchase.domain.TOffer"
+                     select="com.aidex.shadd.purchase.mapper.TOfferMapper.queryTOfferByPurchaseId"/>
+    </resultMap>
+
+    <select id="queryListByFactory" resultMap="purchaseModel">
+        SELECT a.productid as tproductid,a.id as tid,
+        <include refid="tPurchaseColumns"/>
+        FROM t_purchase a
+        <include refid="tPurchaseJoins"/>
+        WHERE a.factoryId = #{factoryId}
+    </select>
+
+    <select id="findList" resultType="TPurchase">
+        SELECT
+            <include refid="tPurchaseColumns"/>
+        FROM t_purchase a
+        <include refid="tPurchaseJoins"/>
+        <where>
+            a.del_flag = #{DEL_FLAG_NORMAL}
+            <if test="factoryid != null and factoryid != ''">
+                and a.factoryId like concat('%', #{factoryid}, '%')
+            </if>
+            <if test="productid != null and productid != ''">
+                and a.productId like concat('%', #{productid}, '%')
+            </if>
+            <if test="exw != null ">
+                AND a.exw = #{exw}
+            </if>
+        </where>
+        <choose>
+            <when test="page !=null and page.orderByColumn != null and page.orderByColumn != ''">
+                ORDER BY ${page.orderByColumn}
+            </when>
+            <otherwise>
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="findListWithUnique" resultType="TPurchase">
+        SELECT
+            a.id
+        FROM t_purchase a
+        <include refid="tPurchaseJoins"/>
+        <where>
+            a.del_flag = #{DEL_FLAG_NORMAL}
+            <if test="notEqualId != null and notEqualId != ''">
+                AND id != #{notEqualId}
+            </if>
+        </where>
+    </select>
+
+
+    <insert id="insert">
+        INSERT INTO t_purchase(
+            image,
+
+            factoryId,
+
+            productId,
+
+            exw,
+
+            remark,
+
+            id,
+
+            create_by,
+
+            create_dept,
+
+            create_time,
+
+            update_by,
+
+            update_time,
+
+            update_ip,
+
+            version,
+
+            del_flag,
+            imageDetailList
+
+        ) VALUES (
+            #{image},
+
+            #{factoryid},
+
+            #{productid},
+
+            #{exw},
+
+            #{remark},
+
+            #{id},
+
+            #{createBy},
+
+            #{createDept},
+
+            #{createTime},
+
+            #{updateBy},
+
+            #{updateTime},
+
+            #{updateIp},
+
+            #{version},
+
+            #{delFlag},
+
+            #{imageDetailList}
+
+        )
+    </insert>
+
+    <update id="update">
+        UPDATE t_purchase SET
+            image = #{image},
+            factoryId = #{factoryid},
+            productId = #{productid},
+            exw = #{exw},
+            remark = #{remark},
+            update_by = #{updateBy},
+            update_time = #{updateTime},
+            update_ip = #{updateIp},
+            version = version + 1,
+            imageDetailList = #{imageDetailList}
+        WHERE id = #{id} and version = #{version}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE t_purchase SET
+            status = #{status},
+            version = version + 1
+        WHERE id = #{id}
+    </update>
+
+    <update id="delete">
+        UPDATE t_purchase SET
+            del_flag = #{DEL_FLAG_DELETE}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteTPurchaseByIds">
+        Delete from t_purchase
+        WHERE id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

@@ -123,6 +123,11 @@ const vueConfig = {
         pathRewrite: {
           ['^' + process.env.VUE_APP_BASE_API]: ''
         }
+      },
+      [process.env.FILE_SERVER_API]: {
+        // target: `https://aidex.setworld.net`,
+        target: `http://121.40.245.72:8096`,
+        changeOrigin: true
       }
     },
     disableHostCheck: true //增加该设置是为了解决使用外网映射工具映射时报错--可以删除

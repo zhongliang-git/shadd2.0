@@ -31,7 +31,12 @@
         </a-col>
         <a-col :span="12">
           <a-form-model-item label="厂家图片" prop="name">
-            <a-upload name="file" :beforeUpload="beforeUpload" :showUploadList="false">
+            <a-upload
+              name="file"
+              :beforeUpload="beforeUpload"
+              list-type="picture-card"
+              :customRequest="e => uploadImage(e)"
+              :showUploadList="false">
               <a-button icon="upload">选择图片</a-button>
             </a-upload>
           </a-form-model-item>
@@ -63,65 +68,176 @@
           </a-form-model-item>
         </a-col>
         <a-col :span="24">
-        <a-form-model-item label="采购产品" prop="purchaseList">
+          <a-form-model-item label="采购产品" prop="purchaseList">
             <a-button style="margin-left: 10px;margin-bottom: 10px;" @click="purchaseAdd">
               新增采购产品
             </a-button>
-            <a-table :columns="purchaseColumns" :data-source="form.purchaseList" bordered>
-            <template
-              v-for="col in ['product', 'exw', 'site', 'price', 'image']"
-              :slot="col"
-              slot-scope="text, record, index"
-            >
-              <div :key="col">
-                <div v-if="col !== 'image'">
-                  <a-input
-                           v-if="record.editable"
-                           style="margin: -5px 0"
-                           :value="text"
-                           @change="e => purchaseChange(e.target.value, col, index)"
-                  />
-                  <template v-else>
-                    {{ text }}
-                  </template>
+            <a-table :columns="purchaseColumns" :data-source="form.purchaseList">
+              <template
+                v-for="col in ['product', 'exw', 'image', 'imageDetails']"
+                :slot="col"
+                slot-scope="text, purchaseData, purchaseIndex"
+              >
+                <div :key="col">
+                  <div v-if="col === 'exw'">
+                    <a-input-number
+                      :min="0"
+                      v-model="purchaseData.exw"
+                      v-if="purchaseData.editable"
+                      style="margin: -5px 0"
+                    />
+                    <template v-else>
+                      {{ text }}
+                    </template>
+                  </div>
+                  <div v-else-if="col === 'product'">
+                    <a-select
+                      show-search
+                      :allowClear="purchaseData.editable"
+                      placeholder="请选择产品"
+                      option-filter-prop="children"
+                      :filter-option="setSearchMess"
+                      @inputKeydown="e => setProductDataList(e,purchaseIndex)"
+                      @blur="cleanSearchMess"
+                      @focus="setProductDataList({key: 'Enter'}, purchaseIndex)"
+                      @change="e => changeProductData(e,purchaseIndex)"
+                      :disabled="!purchaseData.editable"
+                      :value="purchaseData.productid"
+                    >
+                      <a-select-option
+                        v-for="(d, productDataIndex) in purchaseData.productDataList"
+                        :key="productDataIndex"
+                        :value="d.id">
+                        {{ d.minerals }} |  {{ d.specification }}
+                      </a-select-option>
+                    </a-select>
+                  </div>
+                  <div v-else-if="col === 'image'">
+                    <a-upload
+                      :disabled="!purchaseData.editable"
+                      name="avatar"
+                      list-type="picture-card"
+                      class="avatar-uploader"
+                      :show-upload-list="false"
+                      :beforeUpload="e => purchaseImageBeforeUpload(e, purchaseIndex)"
+                    >
+                      <img style="width: 100px;height: 100px" v-if="purchaseData.image" :src="purchaseData.image" alt="avatar" />
+                      <div v-else>
+                        <a-icon :type="purchaseData.loading ? 'loading' : 'plus'" />
+                        <div class="ant-upload-text">
+                          Upload
+                        </div>
+                      </div>
+                    </a-upload>
+                  </div>
+                  <div style="width: 100px" v-else-if="col === 'imageDetails'">
+                    <a-upload
+                      multiple
+                      :file-list="purchaseData.imageDetailList"
+                      :remove="e => imageDetailsRemove(e, purchaseIndex)"
+                      :customRequest="e => imageDetailsCustomRequest(e, purchaseIndex)"
+                      :beforeUpload="e => imageDetailsBeforeUpload(e, purchaseIndex)"
+                    >
+                      <a-button> <a-icon type="upload" /> Upload </a-button>
+                    </a-upload>
+                  </div>
                 </div>
-                <div v-else>
-                  <a-upload
-                    name="avatar"
-                    list-type="picture-card"
-                    class="avatar-uploader"
-                    :show-upload-list="false"
-                    action="https://www.mocky.io/v2/5cc8019d300000980a055e76"
-                    :before-upload="uploadProductImage"
-                    @change="e => purchaseChange(e, col, index)"
-                  >
-                    <img style="width: 100px;height: 100px" v-if="record.image" :src="record.image" alt="avatar" />
-                    <div v-else>
-                      <a-icon :type="record.loading ? 'loading' : 'plus'" />
-                      <div class="ant-upload-text">
-                        Upload
+              </template>
+              <template slot="operation" slot-scope="text, purchaseData,purchaseIndex">
+                <div class="editable-row-operations">
+                  <div v-if="purchaseData.editable">
+                    <span>
+                      <a @click="() => purchaseEdit(purchaseIndex,purchaseData, false)">保存</a>
+                    </span>
+                    <span style="margin-left: 10px"  @click="purchaseDelete(purchaseIndex)">
+                      <a>删除</a>
+                    </span>
+                  </div>
+                  <div v-else>
+                      <div>
+                        <span @click="purchaseAdd">
+                          <a>新增采购</a>
+                        </span>
+                        <span style="float: right; margin-right: 10px"  @click="purchaseEdit(purchaseIndex,purchaseData,true)">
+                          <a>修改</a>
+                        </span>
+                      </div>
+                      <div style="margin-top: 20px">
+                        <span @click="addOffer(purchaseIndex)">
+                          <a>新增采购价&nbsp</a>
+                        </span>
+                        <span style="float: right; margin-right: 10px" @click="purchaseDelete(purchaseIndex)">
+                          <a>删除</a>
+                        </span>
+                      </div>
+                  </div>
+                </div>
+              </template>
+              <div slot="expandedRowRender" slot-scope="purchaseData, purchaseIndex" style="margin: 0">
+                <a-table :columns="offerColumns" :data-source="purchaseData.offers">
+                  <template
+                    v-for="col in ['siteid', 'price']"
+                    :slot="col"
+                    slot-scope="text, offerModel, offerIndex">
+                    <div :key="col">
+                      <div v-if="col === 'price'">
+                        <a-input-number
+                          :min="0"
+                          v-model="offerModel.price"
+                          :disabled="!offerModel.editable"
+                          style="margin: -5px 0"
+                        />
+                      </div>
+                      <div v-else-if="col === 'siteid'">
+                        <a-select
+                          show-search
+                          :allowClear="offerModel.editable"
+                          placeholder="请选择站点"
+                          :filter-option="setSearchMess"
+                          @inputKeydown="e => setSiteDataList(e,purchaseIndex)"
+                          @blur="cleanSearchMess"
+                          @focus="setSiteDataList({key: 'Enter'}, purchaseIndex, offerIndex)"
+                          @change="e => changeSiteData(e,purchaseIndex,offerIndex)"
+                          :disabled="!offerModel.editable"
+                          :value="offerModel.siteid"
+                          v-model="offerModel.siteid"
+                        >
+                          <a-select-option
+                            v-for="(d, offerIndex) in offerModel.sites"
+                            :key="offerIndex"
+                            :value="d.id">
+                            {{ d.name }}
+                          </a-select-option>
+                        </a-select>
                       </div>
                     </div>
-                  </a-upload>
-                </div>
+                  </template>
+                  <template slot="operation" slot-scope="text, offerModel, offerIndex">
+                    <div class="editable-row-operations">
+                     <div v-if="offerModel.editable">
+                      <span>
+                        <a @click="() => offerEdit(purchaseIndex,offerIndex,offerModel, false)">保存</a>
+                      </span>
+                      <span style="margin-left: 10px"  @click="offerDelete(purchaseIndex,offerIndex)">
+                        <a>删除</a>
+                      </span>
+                     </div>
+                      <div v-else>
+                          <span @click="offerEdit(purchaseIndex,offerIndex,offerModel,true)">
+                            <a>修改</a>
+                          </span>
+                        <span style="margin-left: 10px"  @click="offerDelete(purchaseIndex,offerIndex)">
+                            <a>删除</a>
+                        </span>
+                        <span style="margin-left: 10px"  @click="addOffer(purchaseIndex)">
+                            <a style="font-size: 20px;color: #2f54eb">+</a>
+                          </span>
+                      </div>
+                    </div>
+                  </template>
+                </a-table>
               </div>
-            </template>
-            <template slot="operation" slot-scope="text, record,index">
-              <div class="editable-row-operations">
-                <span v-if="record.editable">
-                  <a @click="() => purchaseEdit(index,record, false)">保存</a>
-                </span>
-                <dev v-else>
-                  <span @click="purchaseEdit(index,record,true)">
-                    <a>修改</a>
-                  </span>
-                  <span style="margin-left: 10px"  @click="purchaseDelete(index)">
-                    <a>删除</a>
-                  </span>
-                </dev>
-              </div>
-            </template>
-          </a-table>
+            </a-table>
         </a-form-model-item>
         </a-col>
         <a-col :span="24">
@@ -141,7 +257,7 @@
                     </a-form-item>
                   </a-col>
                 </a-row>
-                <baidu-map @ready="mapHandler" style="width: 100%;height: 200px" class="map" :center="map.center" :zoom="15">
+                <baidu-map @ready="mapHandler" style="width: 100%;height: 400px" class="map" :center="map.center" :zoom="15">
                   <bm-marker :position="map.center" :dragging="true" animation="BMAP_ANIMATION_BOUNCE">
                     <bm-navigation anchor="BMAP_ANCHOR_TOP_LEFT"></bm-navigation>
                     <bm-geolocation anchor="BMAP_ANCHOR_BOTTOM_RIGHT" :showAddressBar="true" :autoLocation="true"></bm-geolocation>
@@ -173,7 +289,7 @@ export default {
 <style scoped>
 .map {
   width: 100%;
-  height: 200px
+  height: 600px
 }
 .map .search{
   margin-bottom: 200px

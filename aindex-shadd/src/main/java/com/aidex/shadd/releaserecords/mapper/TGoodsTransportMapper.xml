@@ -1,0 +1,197 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aidex.shadd.releaserecords.mapper.TGoodsTransportMapper">
+
+    <sql id="tGoodsTransportColumns">
+
+        concat(l.name, '(', l.code,')') as lineName,
+
+        a.relid as "relid",
+
+        a.number as "number",
+
+        a.lineId as "lineid",
+
+        a.billStatus as "billstatus",
+
+        a.remark as "remark",
+
+        a.id as "id",
+
+        a.create_by as "createBy",
+
+        a.create_dept as "createDept",
+
+        a.create_time as "createTime",
+
+        a.update_by as "updateBy",
+
+        a.update_time as "updateTime",
+
+        a.update_ip as "updateIp",
+
+        a.version as "version",
+
+        a.del_flag as "delFlag"
+
+    </sql>
+
+    <sql id="tGoodsTransportJoins">
+        inner join t_shipping_line l on l.id = a.lineid
+    </sql>
+
+    <select id="get" resultType="TGoodsTransport">
+        SELECT
+            <include refid="tGoodsTransportColumns"/>
+        FROM t_goods_transport a
+        <include refid="tGoodsTransportJoins"/>
+        WHERE a.id = #{id}
+    </select>
+
+    <select id="findList" resultType="TGoodsTransport">
+        SELECT
+            <include refid="tGoodsTransportColumns"/>
+        FROM t_goods_transport a
+        <include refid="tGoodsTransportJoins"/>
+        <where>
+            a.del_flag = #{DEL_FLAG_NORMAL}
+            <if test="relid != null and relid != ''">
+                AND a.relid = #{relid}
+            </if>
+            <if test="number != null ">
+                AND a.number = #{number}
+            </if>
+            <if test="lineid != null and lineid != ''">
+                and a.lineId like concat('%', #{lineid}, '%')
+            </if>
+            <if test="billstatus != null and billstatus != ''">
+                AND a.billStatus = #{billstatus}
+            </if>
+            <if test="lineName != null and lineName != ''">
+                and (l.name like concat('%', #{lineName}, '%') or
+                l.code like concat('%', #{lineName}, '%') )
+            </if>
+
+        </where>
+        <choose>
+            <when test="page !=null and page.orderByColumn != null and page.orderByColumn != ''">
+                ORDER BY ${page.orderByColumn}
+            </when>
+            <otherwise>
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="findListWithUnique" resultType="TGoodsTransport">
+        SELECT
+            a.id
+        FROM t_goods_transport a
+        <include refid="tGoodsTransportJoins"/>
+        <where>
+            a.del_flag = #{DEL_FLAG_NORMAL}
+            <if test="notEqualId != null and notEqualId != ''">
+                AND id != #{notEqualId}
+            </if>
+        </where>
+    </select>
+
+
+    <insert id="insert">
+        INSERT INTO t_goods_transport(
+            relid,
+
+            number,
+
+            lineId,
+
+            billStatus,
+
+            remark,
+
+            id,
+
+            create_by,
+
+            create_dept,
+
+            create_time,
+
+            update_by,
+
+            update_time,
+
+            update_ip,
+
+            version,
+
+            del_flag
+
+        ) VALUES (
+            #{relid},
+
+            #{number},
+
+            #{lineid},
+
+            #{billstatus},
+
+            #{remark},
+
+            #{id},
+
+            #{createBy},
+
+            #{createDept},
+
+            #{createTime},
+
+            #{updateBy},
+
+            #{updateTime},
+
+            #{updateIp},
+
+            #{version},
+
+            #{delFlag}
+
+        )
+    </insert>
+
+    <update id="update">
+        UPDATE t_goods_transport SET
+            relid = #{relid},
+            number = #{number},
+            lineId = #{lineid},
+            billStatus = #{billstatus},
+            remark = #{remark},
+            update_by = #{updateBy},
+            update_time = #{updateTime},
+            update_ip = #{updateIp},
+            version = version + 1
+        WHERE id = #{id} and version = #{version}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE t_goods_transport SET
+            status = #{status},
+            version = version + 1
+        WHERE id = #{id}
+    </update>
+
+    <update id="delete">
+        UPDATE t_goods_transport SET
+            del_flag = #{DEL_FLAG_DELETE}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteTGoodsTransportByIds">
+        UPDATE t_goods_transport SET
+            del_flag = '1'
+        WHERE id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

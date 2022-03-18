@@ -4,7 +4,6 @@ package com.aidex.common.core.service;
 import com.aidex.common.core.domain.BaseEntity;
 import com.aidex.common.core.mapper.BaseMapper;
 import com.aidex.common.core.page.PageDomain;
-import com.aidex.common.core.page.TableSupport;
 import com.aidex.common.exception.SysException;
 import com.aidex.common.utils.StringUtils;
 import com.aidex.common.utils.bean.BeanUtils;
@@ -91,6 +90,12 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEnt
 	 */
 	@Override
 	public PageInfo<T> findPage(T entity) {
+		this.page(entity);
+		return new PageInfo(findList(entity));
+	}
+
+	@Override
+	public void page(T entity) {
 		PageDomain page = entity.getPage();
 		Integer pageNum = page.getPageNum();
 		Integer pageSize = page.getPageSize();
@@ -100,7 +105,6 @@ public abstract class BaseServiceImpl<M extends BaseMapper<T>, T extends BaseEnt
 			Boolean reasonable = page.getReasonable();
 			PageHelper.startPage(pageNum, pageSize, orderBy).setReasonable(reasonable);
 		}
-		return new PageInfo(findList(entity));
 	}
 
 	/**

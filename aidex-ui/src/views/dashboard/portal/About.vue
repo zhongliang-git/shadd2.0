@@ -1,6 +1,6 @@
 <template>
-  <div class="typical-home" ref="portaletDiv">
-    <a-row :gutter="[24,24]" class="module-list">
+  <div class="typical-home" ref="portaletDiv" style="display: none" >
+    <a-row :gutter="[24,24]" class="module-list" >
       <!-- 待办事项 -->
       <a-col :span="24" >
         <div class="module-in module-in01 modlule-show" style="height: 260px;">

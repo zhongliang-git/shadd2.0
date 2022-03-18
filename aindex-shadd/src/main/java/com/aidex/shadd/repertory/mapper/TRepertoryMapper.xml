@@ -1,0 +1,206 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aidex.shadd.repertory.mapper.TRepertoryMapper">
+
+    <sql id="tRepertoryColumns">
+        a.spid as "spid",
+
+        a.repertory as "repertory",
+
+        a.total as "total",
+
+        a.clsd as "clsd",
+
+        a.accountopen as "accountopen",
+
+        a.obligation as "obligation",
+
+        a.total_amount as "totalAmount",
+
+        a.remark as "remark",
+
+        a.id as "id",
+
+        a.create_by as "createBy",
+
+        a.create_dept as "createDept",
+
+        a.create_time as "createTime",
+
+        a.update_by as "updateBy",
+
+        a.update_time as "updateTime",
+
+        a.update_ip as "updateIp",
+
+        a.version as "version",
+
+        a.del_flag as "delFlag"
+
+    </sql>
+
+    <sql id="tRepertoryJoins">
+    </sql>
+
+    <select id="get" resultType="TRepertory">
+        SELECT
+            <include refid="tRepertoryColumns"/>
+        FROM t_repertory a
+        <include refid="tRepertoryJoins"/>
+        WHERE a.id = #{id}
+    </select>
+
+    <select id="findList" resultType="TRepertory">
+        SELECT
+            <include refid="tRepertoryColumns"/>
+        FROM t_repertory a
+        <include refid="tRepertoryJoins"/>
+        <where>
+            a.del_flag = #{DEL_FLAG_NORMAL}
+            <if test="repertory != null ">
+                AND a.repertory = #{repertory}
+            </if>
+            <if test="total != null ">
+                AND a.total = #{total}
+            </if>
+            <if test="clsd != null ">
+                AND a.clsd = #{clsd}
+            </if>
+        </where>
+        <choose>
+            <when test="page !=null and page.orderByColumn != null and page.orderByColumn != ''">
+                ORDER BY ${page.orderByColumn}
+            </when>
+            <otherwise>
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="findListWithUnique" resultType="TRepertory">
+        SELECT
+            a.id
+        FROM t_repertory a
+        <include refid="tRepertoryJoins"/>
+        <where>
+            a.del_flag = #{DEL_FLAG_NORMAL}
+            <if test="notEqualId != null and notEqualId != ''">
+                AND id != #{notEqualId}
+            </if>
+        </where>
+    </select>
+
+
+    <insert id="insert">
+        INSERT INTO t_repertory(
+            spid,
+
+            repertory,
+
+            total,
+
+            clsd,
+
+            accountopen,
+
+            obligation,
+
+            total_amount,
+
+            remark,
+
+            id,
+
+            create_by,
+
+            create_dept,
+
+            create_time,
+
+            update_by,
+
+            update_time,
+
+            update_ip,
+
+            version,
+
+            del_flag
+
+        ) VALUES (
+            #{spid},
+
+            #{repertory},
+
+            #{total},
+
+            #{clsd},
+
+            #{accountopen},
+
+            #{obligation},
+
+            #{totalAmount},
+
+            #{remark},
+
+            #{id},
+
+            #{createBy},
+
+            #{createDept},
+
+            #{createTime},
+
+            #{updateBy},
+
+            #{updateTime},
+
+            #{updateIp},
+
+            #{version},
+
+            #{delFlag}
+
+        )
+    </insert>
+
+    <update id="update">
+        UPDATE t_repertory SET
+            spid = #{spid},
+            repertory = #{repertory},
+            total = #{total},
+            clsd = #{clsd},
+            accountopen = #{accountopen},
+            obligation = #{obligation},
+            total_amount = #{totalAmount},
+            remark = #{remark},
+            update_by = #{updateBy},
+            update_time = #{updateTime},
+            update_ip = #{updateIp},
+            version = version + 1
+        WHERE id = #{id} and version = #{version}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE t_repertory SET
+            status = #{status},
+            version = version + 1
+        WHERE id = #{id}
+    </update>
+
+    <update id="delete">
+        UPDATE t_repertory SET
+            del_flag = #{DEL_FLAG_DELETE}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteTRepertoryByIds">
+        UPDATE t_repertory SET
+            del_flag = '1'
+        WHERE id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

@@ -1,0 +1,208 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aidex.shadd.releaserecords.mapper.TReleaseRecordsMapper">
+
+    <sql id="tReleaseRecordsColumns">
+        a.dactoryId as "dactoryid",
+
+        a.productId as "productid",
+
+        a.siteId as "siteid",
+
+        a.receivingNumber as "receivingnumber",
+
+        a.remark as "remark",
+
+        a.id as "id",
+
+        a.create_by as "createBy",
+
+        a.create_dept as "createDept",
+
+        a.create_time as "createTime",
+
+        a.update_by as "updateBy",
+
+        a.update_time as "updateTime",
+
+        a.update_ip as "updateIp",
+
+        a.version as "version",
+
+        a.del_flag as "delFlag"
+
+    </sql>
+    <sql id="joinColumn">
+        f.name as  "factoryName", CONCAT( p.minerals, "|", p.specification ) AS productName,
+        s.name as "siteName",
+    </sql>
+    <sql id="tReleaseRecordsJoins">
+        INNER JOIN t_factory   f ON f.id = a.dactoryId
+        INNER JOIN t_purchase  u on u.id = a.productid
+        INNER JOIN t_product   p ON p.id = u.productid
+        INNER JOIN t_site      s ON s.id = a.siteId
+    </sql>
+
+    <select id="get" resultType="TReleaseRecords">
+        SELECT
+            <include refid="tReleaseRecordsColumns"/>
+        FROM t_release_records a
+        <include refid="tReleaseRecordsJoins"/>
+        WHERE a.id = #{id}
+    </select>
+
+    <select id="findList" resultType="TReleaseRecords">
+        SELECT
+            <include refid="joinColumn"></include>
+            <include refid="tReleaseRecordsColumns"/>
+        FROM t_release_records a
+        <include refid="tReleaseRecordsJoins"/>
+        <where>
+            a.del_flag = #{DEL_FLAG_NORMAL}
+            <if test="dactoryid != null and dactoryid != ''">
+                and a.dactoryId like concat('%', #{dactoryid}, '%')
+            </if>
+            <if test="productid != null and productid != ''">
+                and a.productId like concat('%', #{productid}, '%')
+            </if>
+            <if test="siteid != null and siteid != ''">
+                and a.siteId like concat('%', #{siteid}, '%')
+            </if>
+            <if test="receivingnumber != null ">
+                AND a.receivingNumber = #{receivingnumber}
+            </if>
+            <if test="productName != null and productName != ''">
+                and (CONCAT( p.minerals, "|", p.specification ) like
+                concat('%', #{productName}, '%')  or
+                p.minerals like concat('%', #{productName}, '%') or
+                p.specification like concat('%', #{productName}, '%'))
+            </if>
+            <if test="factoryName != null and factoryName != ''">
+                and f.NAME like concat('%', #{factoryName}, '%')
+            </if>
+            <if test="siteid != null and siteid != ''">
+                and s.name like concat('%', #{siteName}, '%')
+            </if>
+        </where>
+        <choose>
+            <when test="page !=null and page.orderByColumn != null and page.orderByColumn != ''">
+                ORDER BY ${page.orderByColumn}
+            </when>
+            <otherwise>
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="findListWithUnique" resultType="TReleaseRecords">
+        SELECT
+            a.id
+        FROM t_release_records a
+        <include refid="tReleaseRecordsJoins"/>
+        <where>
+            a.del_flag = #{DEL_FLAG_NORMAL}
+            <if test="notEqualId != null and notEqualId != ''">
+                AND id != #{notEqualId}
+            </if>
+        </where>
+    </select>
+
+
+    <insert id="insert">
+        INSERT INTO t_release_records(
+            dactoryId,
+
+            productId,
+
+            siteId,
+
+            receivingNumber,
+
+            remark,
+
+            id,
+
+            create_by,
+
+            create_dept,
+
+            create_time,
+
+            update_by,
+
+            update_time,
+
+            update_ip,
+
+            version,
+
+            del_flag
+
+        ) VALUES (
+            #{dactoryid},
+
+            #{productid},
+
+            #{siteid},
+
+            #{receivingnumber},
+
+            #{remark},
+
+            #{id},
+
+            #{createBy},
+
+            #{createDept},
+
+            #{createTime},
+
+            #{updateBy},
+
+            #{updateTime},
+
+            #{updateIp},
+
+            #{version},
+
+            #{delFlag}
+
+        )
+    </insert>
+
+    <update id="update">
+        UPDATE t_release_records SET
+            dactoryId = #{dactoryid},
+            productId = #{productid},
+            siteId = #{siteid},
+            receivingNumber = #{receivingnumber},
+            remark = #{remark},
+            update_by = #{updateBy},
+            update_time = #{updateTime},
+            update_ip = #{updateIp},
+            version = version + 1
+        WHERE id = #{id} and version = #{version}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE t_release_records SET
+            status = #{status},
+            version = version + 1
+        WHERE id = #{id}
+    </update>
+
+    <update id="delete">
+        UPDATE t_release_records SET
+            del_flag = #{DEL_FLAG_DELETE}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteTReleaseRecordsByIds">
+        UPDATE t_release_records SET
+            del_flag = '1'
+        WHERE id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

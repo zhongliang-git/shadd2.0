@@ -1,8 +1,8 @@
 <template>
   <div id="content" style="margin: -8px;">
-    <common-use/>
-    <about/>
-    <to-do/>
+<!--    <common-use/>-->
+<!--    <about/>-->
+<!--    <to-do/>-->
   </div>
 </template>
 

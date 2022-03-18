@@ -53,6 +53,6 @@ public interface BaseMapper<T> {
 	 * @param entity
 	 * @return
 	 */
-	public int delete(T entity);
+	 int delete(T entity);
 	
 }

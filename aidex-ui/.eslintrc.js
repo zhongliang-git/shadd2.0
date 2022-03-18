@@ -8,6 +8,7 @@ module.exports = {
     '@vue/standard'
   ],
   rules: {
+    'no-mixed-spaces-and-tabs': 0,
     'no-console': 'off',
     "space-before-function-paren": 0,
     "vue/require-default-prop": "off",

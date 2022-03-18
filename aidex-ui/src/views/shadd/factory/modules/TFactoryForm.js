@@ -1,6 +1,9 @@
 import AntModal from '@/components/pt/dialog/AntModal'
 import { getTFactory, addTFactory, updateTFactory } from '@/api/shadd/tFactory'
+import { uploadFile } from '@/api/shadd/file'
 import { citys } from '@/views/shadd/component/city/City.js'
+import { selectListTProduct } from '@/api/shadd/tProduct'
+import { listTSite } from '@/api/shadd/tSite'
 
 export default {
   name: 'CreateForm',
@@ -40,7 +43,6 @@ export default {
       confirmLoading: false,
       uploading: false,
       options: {
-        // img: 'https://zos.alipayobjects.com/rmsportal/jkjgkEfvpUPVyRjUImniVslZfWPnJuuZ.png',
         img: '',
         autoCrop: true,
         autoCropWidth: 200,
@@ -52,7 +54,7 @@ export default {
         {
           title: '产品',
           dataIndex: 'product',
-          width: '15%',
+          width: '20%',
           scopedSlots: { customRender: 'product' }
         },
         {
@@ -62,22 +64,35 @@ export default {
           scopedSlots: { customRender: 'exw' }
         },
         {
-          title: '到货站',
-          dataIndex: 'site',
-          width: '15%',
-          scopedSlots: { customRender: 'site' }
-        },
-        {
-          title: '采购价',
-          dataIndex: 'price',
-          width: '15%',
-          scopedSlots: { customRender: 'price' }
-        },
-        {
           title: '产品图片',
           dataIndex: 'image',
           width: '20%',
           scopedSlots: { customRender: 'image' }
+        },
+        {
+          title: '详情图',
+          dataIndex: 'imageDetails',
+          width: '20%',
+          scopedSlots: { customRender: 'imageDetails' }
+        },
+        {
+          title: '操作',
+          dataIndex: 'operation',
+          scopedSlots: { customRender: 'operation' }
+        }
+      ],
+      offerColumns: [
+        {
+          title: '站点',
+          dataIndex: 'siteid',
+          width: '40%',
+          scopedSlots: { customRender: 'siteid' }
+        },
+        {
+          title: '采购价',
+          dataIndex: 'price',
+          width: '40%',
+          scopedSlots: { customRender: 'price' }
         },
         {
           title: '操作',
@@ -88,8 +103,21 @@ export default {
       roductImageIndex: undefined,
       map: {
         type: Object
-      }
+      },
+      productDataList: [],
+      searchProductMess: undefined,
+      // 查询参数
+      queryParam: {
+        pageNum: 1,
+        pageSize: 10,
+        factoryid: undefined,
 
+        productid: undefined,
+
+        exw: undefined,
+        siteDataList: []
+
+      }
     }
   },
   filters: {},
@@ -141,10 +169,13 @@ export default {
         lng: 104.10194,
         lat: 30.65984
       }
+      this.productDataList = undefined
     },
     /** 新增按钮操作 */
     handleAdd() {
       this.open = true
+      this.getProductDataList()
+      this.getSiteDataList()
       this.reset()
     },
     /** 修改按钮操作 */
@@ -154,12 +185,19 @@ export default {
       this.spinning = !this.spinning
       const tFactoryId = row.id
       const thls = this
+      this.getProductDataList()
+      this.getSiteDataList()
       getTFactory(tFactoryId).then(response => {
         if (response.data.districtCode) {
           response.data.districtCode = JSON.parse(response.data.districtCode)
         }
         if (!response.data.address) {
           response.data.address = undefined
+        }
+        const purchaseList = response.data.purchaseList
+        for (const i in purchaseList) {
+          purchaseList[i].productDataList = [purchaseList[i].product]
+          purchaseList[i].imageDetailList = JSON.parse(purchaseList[i].imageDetailList)
         }
         thls.map.center = {
           lng: response.data.longitude,
@@ -173,9 +211,18 @@ export default {
     },
     /** 提交按钮 */
     submitForm: function () {
+      const thls = this
       this.$refs.form.validate(valid => {
         if (valid) {
-          const saveForm = JSON.parse(JSON.stringify(this.form))
+          const saveForm = JSON.parse(JSON.stringify(thls.form))
+          for (const pi in saveForm.purchaseList) {
+            let newImageDetailList = saveForm.purchaseList[pi].imageDetailList
+            newImageDetailList = JSON.parse(JSON.stringify(newImageDetailList))
+            for (const ni in newImageDetailList) {
+              newImageDetailList[ni].name = this.form.purchaseList[pi].imageDetailList[ni].name
+            }
+            saveForm.purchaseList[pi].imageDetailList = JSON.stringify(newImageDetailList)
+          }
           saveForm.districtCode = JSON.stringify(saveForm.districtCode)
           if (this.form.id !== undefined) {
             updateTFactory(saveForm).then(response => {
@@ -225,18 +272,28 @@ export default {
       this.$refs.cropper.rotateRight()
     },
     beforeUpload(file) {
-      const reader = new FileReader()
-      // 把Array Buffer转化为blob 如果是base64不需要
-      // 转化为base64
-      reader.readAsDataURL(file)
-      reader.onload = () => {
-        this.options.img = reader.result
-        this.form.image = reader.result
+      const isJpgOrPng = file.type === 'image/jpeg' ||
+        file.type === 'image/jpg' ||
+        file.type === 'image/png'
+      if (!isJpgOrPng) {
+        this.$message.error('只能上传jpg/png格式的图片!')
       }
-      // 转化为blob
-      // reader.readAsArrayBuffer(file)
-
-      return false
+      const isLt2M = file.size / 1024 / 1024 < 5
+      if (!isLt2M) {
+        this.$message.error('图片不得大于5MB!')
+      }
+      return isJpgOrPng && isLt2M
+    },
+    uploadImage(file) {
+      const formData = new FormData()
+      const thlt = this
+      formData.append('file', file.file)
+      uploadFile(formData).then(response => {
+        if (response) {
+          thlt.previews.url = response
+          thlt.form.image = response
+        }
+      })
     },
     realTime(data) {
       this.previews = data
@@ -244,10 +301,17 @@ export default {
     purchaseAdd() {
       const { purchaseList } = this.form
       const newData = {
-        product: undefined,
+        product: {
+          id: undefined,
+          minerals: undefined,
+          specification: undefined,
+          offers: []
+        },
         image: undefined,
         exw: undefined,
-        editable: true
+        editable: true,
+        imageDetails: [],
+        productDataList: this.productDataList
       }
       this.form.purchaseList = [...purchaseList, newData]
     },
@@ -258,6 +322,7 @@ export default {
       this.form.purchaseList = newPurchaseList
     },
     purchaseChange(data, column, index) {
+      debugger
       const newPurchaseList = [...this.form.purchaseList]
       if (column === 'image') {
         if (data.file.status === 'uploading') {
@@ -321,6 +386,169 @@ export default {
           lat: e.point.lat
         })
       })
+    },
+
+    setSearchMess(input, option) {
+      this.searchProductMess = input
+      return (
+        option.componentOptions.children[0].text.toLowerCase().indexOf(input.toLowerCase()) >= 0
+      )
+    },
+    cleanSearchMess() {
+      this.searchProductMess = undefined
+      this.getProductDataList()
+    },
+    setProductDataList(key, index) {
+      if (key.key !== 'Enter') {
+        return
+      }
+      if (this.searchProductMess) {
+        this.getProductDataList()
+      }
+      const newPurchaseList = [...this.form.purchaseList]
+      newPurchaseList[index].productDataList = this.productDataList
+      this.form.purchaseList = newPurchaseList
+    },
+    /**
+     *
+     * @param 查询产品
+     */
+    getProductDataList() {
+      const queryParam = {
+          pageNum: 1,
+          pageSize: 10,
+          minerals: this.searchProductMess
+      }
+      selectListTProduct(queryParam).then(response => {
+        if (response.data) {
+          this.productDataList = response.data.list
+        } else {
+          this.productDataList = []
+        }
+      })
+    },
+    addOffer(index) {
+      let offers = [...this.form.purchaseList][index].offers
+      const newOffer = {
+        price: undefined,
+        siteid: undefined,
+        editable: true,
+        sites: this.siteDataList
+      }
+      if (!offers) {
+        offers = []
+      }
+      this.form.purchaseList[index].offers = [...offers, newOffer]
+      this.updatePageData()
+    },
+    updatePageData() {
+      const newPurchaseList = [...this.form.purchaseList]
+      this.form.purchaseList = newPurchaseList
+    },
+    offerEdit(purchaseIndex, offerIndex, offerModel, status) {
+      const offers = [...this.form.purchaseList][purchaseIndex].offers
+      offerModel.editable = status
+      offers[offerModel] = offerModel
+      this.form.purchaseList[purchaseIndex].offers = offers
+      this.updatePageData()
+    },
+    offerDelete(index, offerIndex) {
+      const offers = [...this.form.purchaseList][index].offers
+      offers.splice(offerIndex, 1)
+      this.form.purchaseList[index].offers = offers
+      this.updatePageData()
+    },
+    getSites({ text, column, record, index }) {
+      console.log('text', text)
+      console.log(column)
+      console.log(record)
+      console.log(index)
+    },
+    changeProductData(e, index) {
+      const newPurchaseList = [...this.form.purchaseList]
+      newPurchaseList[index].productid = e
+      this.form.purchaseList = newPurchaseList
+    },
+    getSiteDataList() {
+      if (this.siteDataList) {
+        return this.siteDataList
+      }
+      const queryParam = {
+        pageNum: 1,
+        pageSize: 10,
+        minerals: this.searchProductMess
+      }
+      listTSite(queryParam).then(response => {
+        this.siteDataList = response.data.list
+        return this.siteDataList
+      })
+    },
+    changeSiteData(e, purchaseIndex, offerIndex) {
+      const offers = [...this.form.purchaseList][purchaseIndex].offers
+      const offer = offers[offerIndex]
+      offer.siteid = e
+      this.form.purchaseList[purchaseIndex].offers = offers
+      this.updatePageData()
+    },
+    setSiteDataList(key, purchaseIndex, offerIndex) {
+      if (key.key !== 'Enter') {
+        return
+      }
+      if (this.searchProductMess) {
+        this.getSiteDataList()
+      }
+      const offers = [...this.form.purchaseList][purchaseIndex].offers
+      const offer = offers[offerIndex]
+      offer.sites = this.siteDataList
+      offers[offerIndex].offer = offer
+      this.form.purchaseList[purchaseIndex].offers = offers
+      this.updatePageData()
+    },
+    imageDetailsCustomRequest(e, purchaseIndex) {
+      debugger
+    },
+    purchaseImageBeforeUpload(file, index) {
+      const purchaseList = [...this.form.purchaseList]
+      const formData = new FormData()
+      const thlt = this
+      formData.append('file', file)
+      uploadFile(formData).then(response => {
+        if (response) {
+          purchaseList[index].image = response
+          thlt.form.purchaseList = purchaseList
+          this.updatePageData()
+        }
+      })
+    },
+    imageDetailsBeforeUpload(file, index) {
+      const purchaseList = [...this.form.purchaseList]
+      if (!purchaseList[index].imageDetailList) {
+        purchaseList[index].imageDetailList = []
+      }
+      const formData = new FormData()
+      const thlt = this
+      formData.append('file', file)
+      uploadFile(formData).then(response => {
+        if (response) {
+          file.status = 'done'
+          file.url = response
+          const newImageDetailList = [...purchaseList[index].imageDetailList, file]
+          thlt.form.purchaseList[index].imageDetailList = newImageDetailList
+          this.updatePageData()
+        }
+      })
+      return false
+    },
+    imageDetailsRemove(file, index) {
+      const purchaseList = [...this.form.purchaseList]
+      if (!purchaseList[index].imageDetailList) {
+        return
+      }
+      const i = purchaseList[index].imageDetailList.indexOf(file)
+      const newImageDetailList = purchaseList[index].imageDetailList.slice()
+      newImageDetailList.splice(i, 1)
+      this.form.purchaseList[index].imageDetailList = newImageDetailList
+      this.updatePageData()
     }
   }
 }
