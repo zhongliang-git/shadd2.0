@@ -1,13 +1,12 @@
 package com.aidex.shadd.repertory.domain;
 
-import java.math.BigDecimal;
+import com.aidex.common.annotation.Excel;
+import com.aidex.common.core.domain.BaseEntity;
 import lombok.Data;
 import org.apache.commons.lang3.builder.ToStringBuilder;
 import org.apache.commons.lang3.builder.ToStringStyle;
-import com.aidex.common.utils.log.annotation.FieldRemark;
-import com.aidex.common.utils.log.annotation.LogField;
-import com.fasterxml.jackson.annotation.JsonFormat;
-import com.aidex.common.annotation.Excel;
+
+import java.math.BigDecimal;
 /**
  * 库存对象 t_repertory
  * @author 钟良
