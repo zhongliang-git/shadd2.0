@@ -147,7 +147,7 @@
                 <div class="editable-row-operations">
                   <div v-if="purchaseData.editable">
                     <span>
-                      <a @click="() => purchaseEdit(purchaseIndex,purchaseData, false)">保存</a>
+                      <a @click="() => purchaseEdit(purchaseIndex, purchaseData, false)">保存</a>
                     </span>
                     <span style="margin-left: 10px"  @click="purchaseDelete(purchaseIndex)">
                       <a>删除</a>
@@ -164,7 +164,7 @@
                       </div>
                       <div style="margin-top: 20px">
                         <span @click="addOffer(purchaseIndex)">
-                          <a>新增采购价&nbsp</a>
+                          <a>新增采购价</a>
                         </span>
                         <span style="float: right; margin-right: 10px" @click="purchaseDelete(purchaseIndex)">
                           <a>删除</a>
@@ -184,6 +184,7 @@
                         <a-input-number
                           :min="0"
                           v-model="offerModel.price"
+                          @change="updatePageData"
                           :disabled="!offerModel.editable"
                           style="margin: -5px 0"
                         />

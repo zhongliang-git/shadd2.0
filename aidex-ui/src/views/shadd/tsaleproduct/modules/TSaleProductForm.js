@@ -1,5 +1,5 @@
 import AntModal from '@/components/pt/dialog/AntModal'
-import { getTOffer, addTOffer, updateTOffer } from '@/api/shadd/tOffer'
+import { getTSaleProduct, addTSaleProduct, updateTSaleProduct } from '@/api/shadd/tSaleProduct'
 
 export default {
   name: 'CreateForm',
@@ -18,10 +18,16 @@ export default {
       loading: false,
       total: 0,
       id: undefined,
-      formTitle: '添加厂家报价',
+      formTitle: '添加销售产品',
       // 表单参数
       form: {},
       rules: {
+        siteid: [{ required: true, message: '销售站点不能为空', trigger: 'blur' }],
+
+        productid: [{ required: true, message: '产品ID不能为空', trigger: 'blur' }],
+
+        price: [{ required: true, message: '售价不能为空', trigger: 'blur' }]
+
       }
     }
   },
@@ -46,6 +52,10 @@ export default {
     reset () {
       this.form = {
         id: undefined,
+        siteid: undefined,
+
+        productid: undefined,
+
         price: undefined,
 
         remark: undefined
@@ -61,35 +71,32 @@ export default {
       this.reset()
       this.open = true
       this.spinning = !this.spinning
-      const tOfferId = row.id
-      getTOffer(tOfferId).then(response => {
+      const tSaleProductId = row.id
+      getTSaleProduct(tSaleProductId).then(response => {
         this.form = response.data
-        this.formTitle = '修改厂家报价'
+        this.formTitle = '修改销售产品'
         this.spinning = !this.spinning
       })
     },
     /** 提交按钮 */
     submitForm: function () {
-      this.loading = true
       this.$refs.form.validate(valid => {
         if (valid) {
-            const saveForm = JSON.stringify(this.form)
-            if (this.form.id !== undefined) {
-              updateTOffer(saveForm).then(response => {
-                this.loading = false
-                this.$message.success('修改成功', 3)
-                this.open = false
-                this.$emit('ok')
-                this.$emit('close')
-              })
-        } else {
-              addTOffer(saveForm).then(response => {
-                this.loading = false
-                this.$message.success('新增成功', 3)
-                this.open = false
-                this.$emit('ok')
-                this.$emit('close')
-              })
+            const saveForm = JSON.parse(JSON.stringify(this.form))
+			if (this.form.id !== undefined) {
+				updateTSaleProduct(saveForm).then(response => {
+					this.$message.success('新增成功', 3)
+					this.open = false
+					this.$emit('ok')
+					this.$emit('close')
+				})
+              } else {
+				addTSaleProduct(saveForm).then(response => {
+					this.$message.success('新增成功', 3)
+					this.open = false
+					this.$emit('ok')
+					this.$emit('close')
+				})
 			}
         } else {
           return false
@@ -97,7 +104,7 @@ export default {
       })
     },
     back () {
-      const index = '/shadd/toffer/index'
+      const index = '/shadd/tsaleproduct/index'
       this.$router.push(index)
     }
   }

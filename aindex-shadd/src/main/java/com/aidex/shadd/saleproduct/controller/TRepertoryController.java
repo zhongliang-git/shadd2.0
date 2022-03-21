@@ -1,25 +1,25 @@
-package com.aidex.shadd.repertory.controller;
+package com.aidex.shadd.saleproduct.controller;
 
-import java.util.List;
 import com.aidex.common.annotation.Log;
+import com.aidex.common.core.controller.BaseController;
 import com.aidex.common.core.domain.R;
-import com.github.pagehelper.PageInfo;
 import com.aidex.common.core.page.PageDomain;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 import com.aidex.common.enums.BusinessType;
 import com.aidex.common.utils.poi.ExcelUtil;
-import javax.validation.constraints.*;
-import org.springframework.web.bind.annotation.*;
-import com.aidex.common.core.controller.BaseController;
-import org.springframework.validation.annotation.Validated;
-import org.springframework.security.access.prepost.PreAuthorize;
+import com.aidex.shadd.saleproduct.domain.TRepertory;
+import com.aidex.shadd.saleproduct.service.TRepertoryService;
+import com.github.pagehelper.PageInfo;
 import org.springframework.beans.factory.annotation.Autowired;
-import com.aidex.shadd.repertory.domain.TRepertory;
-import com.aidex.shadd.repertory.service.TRepertoryService;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.validation.annotation.Validated;
+import org.springframework.web.bind.annotation.*;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+import java.util.List;
 
 /**
- * 库存Controller
+ * 库存子表Controller
  * @author 钟良
  * @email 876154169@qq.com
  * @date 2022-03-19
@@ -32,7 +32,7 @@ public class TRepertoryController extends BaseController
     private TRepertoryService tRepertoryService;
 
     /**
-     * 查询库存列表
+     * 查询库存子表列表
      */
     @PreAuthorize("@ss.hasPermi('shadd:tRepertory:list')")
     @GetMapping("/list")
@@ -43,7 +43,7 @@ public class TRepertoryController extends BaseController
     }
 
     /**
-     * 获取库存详细信息
+     * 获取库存子表详细信息
      */
     @PreAuthorize("@ss.hasPermi('shadd:tRepertory:query')")
     @GetMapping(value = "/{id}")
@@ -53,10 +53,10 @@ public class TRepertoryController extends BaseController
     }
 
     /**
-     * 新增库存
+     * 新增库存子表
      */
     @PreAuthorize("@ss.hasPermi('shadd:tRepertory:add')")
-    @Log(title = "库存", businessType = BusinessType.INSERT)
+    @Log(title = "库存子表", businessType = BusinessType.INSERT)
     @PostMapping
     public R add(@RequestBody @Validated  TRepertory tRepertory)
     {
@@ -64,10 +64,10 @@ public class TRepertoryController extends BaseController
     }
 
     /**
-     * 修改库存
+     * 修改库存子表
      */
     @PreAuthorize("@ss.hasPermi('shadd:tRepertory:edit')")
-    @Log(title = "库存", businessType = BusinessType.UPDATE)
+    @Log(title = "库存子表", businessType = BusinessType.UPDATE)
     @PutMapping
     public R edit(@RequestBody @Validated TRepertory tRepertory)
     {
@@ -76,10 +76,10 @@ public class TRepertoryController extends BaseController
 
 
     /**
-     * 删除库存
+     * 删除库存子表
      */
     @PreAuthorize("@ss.hasPermi('shadd:tRepertory:remove')")
-    @Log(title = "库存", businessType = BusinessType.DELETE)
+    @Log(title = "库存子表", businessType = BusinessType.DELETE)
     @DeleteMapping("/{ids}")
     public R remove(@PathVariable String[] ids)
     {
@@ -88,16 +88,16 @@ public class TRepertoryController extends BaseController
 
 
     /**
-     * 导出库存列表
+     * 导出库存子表列表
      */
     @PreAuthorize("@ss.hasPermi('shadd:tRepertory:export')")
-    @Log(title = "库存", businessType = BusinessType.EXPORT)
+    @Log(title = "库存子表", businessType = BusinessType.EXPORT)
     @GetMapping("/export")
     public R export(TRepertory tRepertory)
     {
         List<TRepertory> list = tRepertoryService.findList(tRepertory);
         ExcelUtil<TRepertory> util = new ExcelUtil<TRepertory>(TRepertory.class);
-        return util.exportExcel(list, "库存数据");
+        return util.exportExcel(list, "库存子表数据");
     }
 
 }

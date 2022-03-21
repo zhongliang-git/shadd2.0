@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import java.math.BigDecimal;
 import java.util.List;
 
 /**
@@ -100,4 +101,14 @@ public class TSaleProductController extends BaseController
         return util.exportExcel(list, "销售产品数据");
     }
 
+    @GetMapping("/goods")
+    public R<PageInfo> goods(TSaleProduct tSaleProduct, HttpServletRequest request, HttpServletResponse response)
+    {
+        BigDecimal bigDecimal = tSaleProduct.getPrice();
+        if (bigDecimal == null) {
+            tSaleProduct.setStartPrice(new BigDecimal(0));
+        }
+        tSaleProduct.setPage(new PageDomain(request, response));
+        return R.data(tSaleProductService.findGoodsPage(tSaleProduct));
+    }
 }

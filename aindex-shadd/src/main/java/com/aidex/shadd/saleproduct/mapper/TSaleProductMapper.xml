@@ -30,10 +30,27 @@
         a.del_flag as "delFlag"
 
     </sql>
-
-    <sql id="tSaleProductJoins">
-        inner join
+    <sql id="innerJoinData">
+        p.image as "image", f.name as "factoryName",
+        pr.minerals as "minerals", pr.specification as "specification",
+        concat(s.name, '(', s.code ,')') as "siteName",
     </sql>
+    <sql id="tSaleProductJoins">
+        inner join t_purchase p on p.id = a.productId
+        inner join t_product pr on pr.id = p.productId
+        inner join t_factory f on f.id = p.factoryId
+        inner join t_site s on s.id = a.siteId
+    </sql>
+
+
+    <select id="queryGoods" resultType="TSaleProduct">
+        SELECT
+            <include refid="innerJoinData"/>
+            a.id as "id", r.repertory repertoryNumber,a.price as "price"
+        FROM t_sale_product a
+        <include refid="tSaleProductJoins"/>
+        inner join T_REPERTORY r on r.spid = a.id
+    </select>
 
     <select id="get" resultType="TSaleProduct">
         SELECT
@@ -45,6 +62,7 @@
 
     <select id="findList" resultType="TSaleProduct">
         SELECT
+            <include refid="innerJoinData"></include>
             <include refid="tSaleProductColumns"/>
         FROM t_sale_product a
         <include refid="tSaleProductJoins"/>
@@ -58,6 +76,25 @@
             </if>
             <if test="price != null ">
                 AND a.price = #{price}
+            </if>
+            <if test="startPrice != null ">
+                AND a.price >= #{startPrice}
+            </if>
+            <if test="endPrice != null ">
+                AND a.price &lt;= #{endPrice}
+            </if>
+            <if test="siteName != null and siteName != ''">
+                and (s.name like concat('%', #{siteName}, '%') or
+                     s.code like concat('%', #{siteName}, '%'))
+            </if>
+            <if test="factoryName != null and factoryName != ''">
+                and f.name like concat('%', #{factoryName}, '%')
+            </if>
+            <if test="minerals != null and minerals != ''">
+                and pr.minerals like concat('%', #{minerals}, '%')
+            </if>
+            <if test="specification != null and specification != ''">
+                and pr.specification like concat('%', #{specification}, '%')
             </if>
         </where>
         <choose>

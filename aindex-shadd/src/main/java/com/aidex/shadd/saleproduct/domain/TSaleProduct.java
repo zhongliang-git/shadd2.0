@@ -3,8 +3,6 @@ package com.aidex.shadd.saleproduct.domain;
 import com.aidex.common.annotation.Excel;
 import com.aidex.common.core.domain.BaseEntity;
 import lombok.Data;
-import org.apache.commons.lang3.builder.ToStringBuilder;
-import org.apache.commons.lang3.builder.ToStringStyle;
 
 import javax.validation.constraints.NotBlank;
 import java.math.BigDecimal;
@@ -33,53 +31,28 @@ public class TSaleProduct extends BaseEntity<TSaleProduct>
     @Excel(name = "售价")
     private BigDecimal price;
 
-    public void setSiteid(String siteid) 
-    {
-        this.siteid = siteid;
-    }
+    private BigDecimal startPrice;
 
-    public String getSiteid() 
-    {
-        return siteid;
-    }
+    private BigDecimal endPrice;
 
-    public void setProductid(String productid) 
-    {
-        this.productid = productid;
-    }
+    /** 厂家名称 */
+    private String factoryName;
 
-    public String getProductid() 
-    {
-        return productid;
-    }
+    /** 图片 */
+    private String image;
 
-    public void setPrice(BigDecimal price) 
-    {
-        this.price = price;
-    }
+    /** 矿种 */
+    private String minerals;
 
-    public BigDecimal getPrice() 
-    {
-        return price;
-    }
+    /** 规格型号 */
+    private String specification;
 
+    /** 销售站点名称 */
+    private String siteName;
 
-    @Override
-    public String toString() {
-        return new ToStringBuilder(this,ToStringStyle.MULTI_LINE_STYLE)
-            .append("siteid", getSiteid())
-            .append("productid", getProductid())
-            .append("price", getPrice())
-            .append("remark", getRemark())
-            .append("id", getId())
-            .append("createBy", getCreateBy())
-            .append("createDept", getCreateDept())
-            .append("createTime", getCreateTime())
-            .append("updateBy", getUpdateBy())
-            .append("updateTime", getUpdateTime())
-            .append("updateIp", getUpdateIp())
-            .append("version", getVersion())
-            .append("delFlag", getDelFlag())
-            .toString();
-    }
+    /** 售价 */
+   private TRepertory repertory;
+
+   /** 库存 */
+   private BigDecimal repertoryNumber;
 }

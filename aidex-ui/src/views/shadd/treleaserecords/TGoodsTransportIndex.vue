@@ -82,12 +82,8 @@
           <a-badge :status="record.status == '0' ? 'processing' : 'error'" :text=" statusFormat(record) " />
         </span>
         <span slot="operation" slot-scope="text, record">
-          <a @click="handleUpdate(record)" v-hasPermi="['shadd:tGoodsTransport:edit']">
+          <a @click="handleUpdate(record)" :disabled="record.billstatus === '到达'" :style="record.billstatus === '到达'?'color: #8c8c8c': ''" v-hasPermi="['shadd:tGoodsTransport:edit']">
             修改
-          </a>
-          <a-divider type="vertical" v-hasPermi="['shadd:tGoodsTransport:remove']"/>
-          <a @click="handleDelete(record)" v-hasPermi="['shadd:tGoodsTransport:remove']">
-            删除
           </a>
         </span>
         </a-table>

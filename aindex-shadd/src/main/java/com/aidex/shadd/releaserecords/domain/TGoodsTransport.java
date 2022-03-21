@@ -18,8 +18,8 @@ public class TGoodsTransport extends BaseEntity<TGoodsTransport>
     @Excel(name = "发货记录Id")
     private String relid;
 
-    /** 到货数据 */
-    @Excel(name = "到货数据")
+    /** 到货数量 */
+    @Excel(name = "到货数量")
     private Long number;
 
     /** 铁路运线 */

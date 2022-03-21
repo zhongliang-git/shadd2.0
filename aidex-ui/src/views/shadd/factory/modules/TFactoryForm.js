@@ -1,5 +1,5 @@
 import AntModal from '@/components/pt/dialog/AntModal'
-import { getTFactory, addTFactory, updateTFactory } from '@/api/shadd/tFactory'
+import { getTFactory, addTFactory } from '@/api/shadd/tFactory'
 import { uploadFile } from '@/api/shadd/file'
 import { citys } from '@/views/shadd/component/city/City.js'
 import { selectListTProduct } from '@/api/shadd/tProduct'
@@ -217,6 +217,9 @@ export default {
           const saveForm = JSON.parse(JSON.stringify(thls.form))
           for (const pi in saveForm.purchaseList) {
             let newImageDetailList = saveForm.purchaseList[pi].imageDetailList
+            if (!newImageDetailList) {
+              continue
+            }
             newImageDetailList = JSON.parse(JSON.stringify(newImageDetailList))
             for (const ni in newImageDetailList) {
               newImageDetailList[ni].name = this.form.purchaseList[pi].imageDetailList[ni].name
@@ -225,7 +228,7 @@ export default {
           }
           saveForm.districtCode = JSON.stringify(saveForm.districtCode)
           if (this.form.id !== undefined) {
-            updateTFactory(saveForm).then(response => {
+            addTFactory(saveForm).then(response => {
               this.$message.success('新增成功', 3)
               this.open = false
               this.$emit('ok')
@@ -316,6 +319,7 @@ export default {
       this.form.purchaseList = [...purchaseList, newData]
     },
     purchaseEdit(index, data, status) {
+      debugger
       const newPurchaseList = [...this.form.purchaseList]
       data.editable = status
       newPurchaseList[index] = data
@@ -428,6 +432,7 @@ export default {
       })
     },
     addOffer(index) {
+      debugger
       let offers = [...this.form.purchaseList][index].offers
       const newOffer = {
         price: undefined,
@@ -446,9 +451,10 @@ export default {
       this.form.purchaseList = newPurchaseList
     },
     offerEdit(purchaseIndex, offerIndex, offerModel, status) {
+      debugger
       const offers = [...this.form.purchaseList][purchaseIndex].offers
       offerModel.editable = status
-      offers[offerModel] = offerModel
+      offers[offerIndex] = offerModel
       this.form.purchaseList[purchaseIndex].offers = offers
       this.updatePageData()
     },
@@ -484,6 +490,7 @@ export default {
       })
     },
     changeSiteData(e, purchaseIndex, offerIndex) {
+      debugger
       const offers = [...this.form.purchaseList][purchaseIndex].offers
       const offer = offers[offerIndex]
       offer.siteid = e
@@ -500,7 +507,7 @@ export default {
       const offers = [...this.form.purchaseList][purchaseIndex].offers
       const offer = offers[offerIndex]
       offer.sites = this.siteDataList
-      offers[offerIndex].offer = offer
+      offers[offerIndex] = offer
       this.form.purchaseList[purchaseIndex].offers = offers
       this.updatePageData()
     },

@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
-<mapper namespace="com.aidex.shadd.repertory.mapper.TRepertoryMapper">
+<mapper namespace="com.aidex.shadd.saleproduct.mapper.TRepertoryMapper">
 
     <sql id="tRepertoryColumns">
         a.spid as "spid",
@@ -57,6 +57,9 @@
         <include refid="tRepertoryJoins"/>
         <where>
             a.del_flag = #{DEL_FLAG_NORMAL}
+            <if test="spid != null and spid != ''">
+                and a.spid like concat('%', #{spid}, '%')
+            </if>
             <if test="repertory != null ">
                 AND a.repertory = #{repertory}
             </if>
@@ -131,11 +134,11 @@
 
             #{repertory},
 
-            #{total},
+            #{repertory},
 
             #{clsd},
 
-            #{accountopen},
+            #{repertory},
 
             #{obligation},
 

@@ -2,11 +2,19 @@ package com.aidex.shadd.releaserecords.service.impl;
 
 import com.aidex.common.core.service.BaseServiceImpl;
 import com.aidex.shadd.releaserecords.domain.TGoodsTransport;
+import com.aidex.shadd.releaserecords.domain.TReleaseRecords;
 import com.aidex.shadd.releaserecords.mapper.TGoodsTransportMapper;
 import com.aidex.shadd.releaserecords.service.TGoodsTransportService;
+import com.aidex.shadd.releaserecords.service.TReleaseRecordsService;
+import com.aidex.shadd.saleproduct.domain.TRepertory;
+import com.aidex.shadd.saleproduct.domain.TSaleProduct;
+import com.aidex.shadd.saleproduct.service.TSaleProductService;
+import com.aidex.shadd.shippingline.domain.TShippingLine;
+import com.aidex.shadd.shippingline.service.TShippingLineService;
 import com.github.pagehelper.PageInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -23,6 +31,12 @@ import java.util.List;
 public class TGoodsTransportServiceImpl extends BaseServiceImpl<TGoodsTransportMapper, TGoodsTransport> implements TGoodsTransportService
 {
     private static final Logger log = LoggerFactory.getLogger(TGoodsTransportServiceImpl.class);
+    @Autowired
+    TSaleProductService saleProductService;
+    @Autowired
+    TReleaseRecordsService releaseRecordsService;
+    @Autowired
+    TShippingLineService shippingLineService;
 
     /**
      * 获取单条数据
@@ -79,7 +93,26 @@ public class TGoodsTransportServiceImpl extends BaseServiceImpl<TGoodsTransportM
     @Override
     public boolean save(TGoodsTransport tGoodsTransport)
     {
-        return super.save(tGoodsTransport);
+        boolean status = super.save(tGoodsTransport);
+        if (status && "到达".equals(tGoodsTransport.getBillstatus())) {
+            // 增加库存
+            TSaleProduct saleProduct = new TSaleProduct();
+            // 根据发货记录查询采购产品Id
+            String relId = tGoodsTransport.getRelid();
+            TReleaseRecords records = releaseRecordsService.get(relId);
+            // 采购产品Id
+            saleProduct.setProductid(records.getProductid());
+            // 根据铁路运线查询销售站点Id
+            TShippingLine shippingLine = shippingLineService.get(tGoodsTransport.getLineid());
+            // 销售站点ID
+            saleProduct.setSiteid(shippingLine.getSeceivingsiteid());
+            TRepertory repertory = new TRepertory();
+            // 库存
+            repertory.setRepertory(tGoodsTransport.getNumber());
+            saleProduct.setRepertory(repertory);
+            saleProductService.saveOrUpdate(saleProduct);
+        }
+        return status;
     }
 
 

@@ -1,9 +1,13 @@
 import AntModal from '@/components/pt/dialog/AntModal'
-import { getTOffer, addTOffer, updateTOffer } from '@/api/shadd/tOffer'
+import { getTRepertory, addTRepertory, updateTRepertory } from '@/api/shadd/tRepertory'
 
 export default {
   name: 'CreateForm',
   props: {
+    spid: {
+        type: String,
+        required: true
+    }
  },
   components: {
     AntModal
@@ -18,7 +22,7 @@ export default {
       loading: false,
       total: 0,
       id: undefined,
-      formTitle: '添加厂家报价',
+      formTitle: '添加库存子表',
       // 表单参数
       form: {},
       rules: {
@@ -46,7 +50,17 @@ export default {
     reset () {
       this.form = {
         id: undefined,
-        price: undefined,
+        repertory: undefined,
+
+        total: undefined,
+
+        clsd: undefined,
+
+        accountopen: undefined,
+
+        obligation: undefined,
+
+        totalAmount: undefined,
 
         remark: undefined
 
@@ -55,41 +69,39 @@ export default {
     /** 新增按钮操作 */
     handleAdd () {
       this.reset()
+    this.form.spid = this.spid
     },
     /** 修改按钮操作 */
     handleUpdate (row) {
       this.reset()
       this.open = true
       this.spinning = !this.spinning
-      const tOfferId = row.id
-      getTOffer(tOfferId).then(response => {
+      const tRepertoryId = row.id
+      getTRepertory(tRepertoryId).then(response => {
         this.form = response.data
-        this.formTitle = '修改厂家报价'
+        this.formTitle = '修改库存子表'
         this.spinning = !this.spinning
       })
     },
     /** 提交按钮 */
     submitForm: function () {
-      this.loading = true
       this.$refs.form.validate(valid => {
         if (valid) {
-            const saveForm = JSON.stringify(this.form)
-            if (this.form.id !== undefined) {
-              updateTOffer(saveForm).then(response => {
-                this.loading = false
-                this.$message.success('修改成功', 3)
-                this.open = false
-                this.$emit('ok')
-                this.$emit('close')
-              })
-        } else {
-              addTOffer(saveForm).then(response => {
-                this.loading = false
-                this.$message.success('新增成功', 3)
-                this.open = false
-                this.$emit('ok')
-                this.$emit('close')
-              })
+            const saveForm = JSON.parse(JSON.stringify(this.form))
+			if (this.form.id !== undefined) {
+				updateTRepertory(saveForm).then(response => {
+					this.$message.success('新增成功', 3)
+					this.open = false
+					this.$emit('ok')
+					this.$emit('close')
+				})
+              } else {
+				addTRepertory(saveForm).then(response => {
+					this.$message.success('新增成功', 3)
+					this.open = false
+					this.$emit('ok')
+					this.$emit('close')
+				})
 			}
         } else {
           return false
@@ -97,7 +109,7 @@ export default {
       })
     },
     back () {
-      const index = '/shadd/toffer/index'
+      const index = '/shadd/tsaleproduct/index'
       this.$router.push(index)
     }
   }
