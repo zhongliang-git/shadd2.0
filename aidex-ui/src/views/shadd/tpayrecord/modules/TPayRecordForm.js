@@ -1,0 +1,110 @@
+import AntModal from '@/components/pt/dialog/AntModal'
+import { getTPayRecord, addTPayRecord, updateTPayRecord } from '@/api/shadd/tPayRecord'
+import SelectUser from '@/components/pt/selectUser/SelectUser'
+
+export default {
+  name: 'CreateForm',
+  props: {
+ },
+  components: {
+    AntModal,
+    SelectUser
+ },
+  data () {
+    return {
+      open: false,
+      spinning: false,
+      delayTime: 100,
+      labelCol: { span: 4 },
+      wrapperCol: { span: 14 },
+      loading: false,
+      total: 0,
+      id: undefined,
+      formTitle: '添加充值记录',
+      // 表单参数
+      form: {},
+      rules: {
+      }
+    }
+  },
+  filters: {},
+  created () {},
+  computed: {},
+  watch: {},
+  mounted () {},
+  methods: {
+    onClose () {
+      this.open = false
+      this.reset()
+      this.$emit('close')
+    },
+    // 取消按钮
+    cancel () {
+      this.open = false
+      this.reset()
+      this.$emit('close')
+    },
+    // 表单重置
+    reset () {
+      this.form = {
+        id: undefined,
+        consumerId: undefined,
+
+        payMoney: undefined,
+
+        donateMoney: undefined
+
+      }
+    },
+    /** 新增按钮操作 */
+    handleAdd () {
+      this.open = true
+      this.reset()
+    },
+    /** 修改按钮操作 */
+    handleUpdate (row) {
+      this.reset()
+      this.open = true
+      this.spinning = !this.spinning
+      const tPayRecordId = row.id
+      getTPayRecord(tPayRecordId).then(response => {
+          response.data.consumerId = { ids: response.data.consumerId, names: response.data.consumerIdName }
+        this.form = response.data
+        this.formTitle = '修改充值记录'
+        this.spinning = !this.spinning
+      })
+    },
+    /** 提交按钮 */
+    submitForm: function () {
+      this.$refs.form.validate(valid => {
+        if (valid) {
+            const saveForm = JSON.parse(JSON.stringify(this.form))
+			if (this.form.consumerId !== undefined) {
+				saveForm.consumerId = this.form.consumerId.ids
+			}
+			if (this.form.id !== undefined) {
+				updateTPayRecord(saveForm).then(response => {
+					this.$message.success('新增成功', 3)
+					this.open = false
+					this.$emit('ok')
+					this.$emit('close')
+				})
+              } else {
+				addTPayRecord(saveForm).then(response => {
+					this.$message.success('新增成功', 3)
+					this.open = false
+					this.$emit('ok')
+					this.$emit('close')
+				})
+			}
+        } else {
+          return false
+        }
+      })
+    },
+    back () {
+      const index = '/shadd/tpayrecord/index'
+      this.$router.push(index)
+    }
+  }
+}

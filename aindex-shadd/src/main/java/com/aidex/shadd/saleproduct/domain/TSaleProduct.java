@@ -55,4 +55,7 @@ public class TSaleProduct extends BaseEntity<TSaleProduct>
 
    /** 库存 */
    private BigDecimal repertoryNumber;
+
+   /** 详情图 */
+   private String imageDetailList;
 }

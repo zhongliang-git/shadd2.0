@@ -195,6 +195,7 @@
                           :allowClear="offerModel.editable"
                           placeholder="请选择站点"
                           :filter-option="setSearchMess"
+                          defaultActiveFirstOption={false}
                           @inputKeydown="e => setSiteDataList(e,purchaseIndex)"
                           @blur="cleanSearchMess"
                           @focus="setSiteDataList({key: 'Enter'}, purchaseIndex, offerIndex)"

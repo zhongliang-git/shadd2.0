@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aidex.shadd.payrecord.mapper.TPayRecordMapper">
+
+    <sql id="tPayRecordColumns">
+        a.consumer_id as "consumerId",
+
+        a.pay_money as "payMoney",
+
+        a.donate_money as "donateMoney",
+
+        a.remark as "remark",
+
+        a.id as "id",
+
+        a.create_by as "createBy",
+
+        a.create_dept as "createDept",
+
+        a.create_time as "createTime",
+
+        a.update_by as "updateBy",
+
+        a.update_time as "updateTime",
+
+        a.update_ip as "updateIp",
+
+        a.version as "version",
+
+        a.del_flag as "delFlag",
+
+        u.name as "userName"
+
+    </sql>
+
+    <sql id="tPayRecordJoins">
+        LEFT JOIN sys_user u ON u.id = a.consumer_id
+    </sql>
+
+    <select id="get" resultType="TPayRecord">
+        SELECT
+            <include refid="tPayRecordColumns"/>
+        FROM t_pay_record a
+        <include refid="tPayRecordJoins"/>
+        WHERE a.id = #{id}
+    </select>
+
+    <select id="findList" resultType="TPayRecord">
+        SELECT
+            <include refid="tPayRecordColumns"/>
+        FROM t_pay_record a
+        <include refid="tPayRecordJoins"/>
+        <where>
+            a.del_flag = #{DEL_FLAG_NORMAL}
+            <if test="consumerId != null and consumerId != ''">
+                AND a.consumer_id = #{consumerId}
+            </if>
+            <if test="payMoney != null ">
+                AND a.pay_money = #{payMoney}
+            </if>
+            <if test="donateMoney != null ">
+                AND a.donate_money = #{donateMoney}
+            </if>
+            <if test="userName != null and userName != ''">
+                AND u.name like concat('%', #{userName}, '%')
+            </if>
+        </where>
+        <choose>
+            <when test="page !=null and page.orderByColumn != null and page.orderByColumn != ''">
+                ORDER BY ${page.orderByColumn}
+            </when>
+            <otherwise>
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="findListWithUnique" resultType="TPayRecord">
+        SELECT
+            a.id
+        FROM t_pay_record a
+        <include refid="tPayRecordJoins"/>
+        <where>
+            a.del_flag = #{DEL_FLAG_NORMAL}
+            <if test="notEqualId != null and notEqualId != ''">
+                AND id != #{notEqualId}
+            </if>
+        </where>
+    </select>
+
+
+    <insert id="insert">
+        INSERT INTO t_pay_record(
+            consumer_id,
+
+            pay_money,
+
+            donate_money,
+
+            remark,
+
+            id,
+
+            create_by,
+
+            create_dept,
+
+            create_time,
+
+            update_by,
+
+            update_time,
+
+            update_ip,
+
+            version,
+
+            del_flag
+
+        ) VALUES (
+            #{consumerId},
+
+            #{payMoney},
+
+            #{donateMoney},
+
+            #{remark},
+
+            #{id},
+
+            #{createBy},
+
+            #{createDept},
+
+            #{createTime},
+
+            #{updateBy},
+
+            #{updateTime},
+
+            #{updateIp},
+
+            #{version},
+
+            #{delFlag}
+
+        )
+    </insert>
+
+    <update id="update">
+        UPDATE t_pay_record SET
+            consumer_id = #{consumerId},
+            pay_money = #{payMoney},
+            donate_money = #{donateMoney},
+            remark = #{remark},
+            update_by = #{updateBy},
+            update_time = #{updateTime},
+            update_ip = #{updateIp},
+            version = version + 1
+        WHERE id = #{id} and version = #{version}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE t_pay_record SET
+            status = #{status},
+            version = version + 1
+        WHERE id = #{id}
+    </update>
+
+    <update id="delete">
+        UPDATE t_pay_record SET
+            del_flag = #{DEL_FLAG_DELETE}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteTPayRecordByIds">
+        UPDATE t_pay_record SET
+            del_flag = '1'
+        WHERE id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

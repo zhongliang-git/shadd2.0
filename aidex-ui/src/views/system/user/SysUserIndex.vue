@@ -393,7 +393,6 @@ export default {
       this.getList()
     },
     handleAdd () {
-      debugger
       this.showAddModal = true
       this.$nextTick(() => (
          this.$refs.sysUserAddForm.handleAdd()

@@ -1,32 +1,32 @@
 package com.aidex.framework.web.service;
 
-import javax.annotation.Resource;
-
+import com.aidex.common.constant.Constants;
 import com.aidex.common.core.domain.entity.SysUser;
 import com.aidex.common.core.domain.entity.SysUserMenu;
+import com.aidex.common.core.domain.model.LoginUser;
+import com.aidex.common.core.redis.RedisCache;
 import com.aidex.common.exception.ExpireException;
+import com.aidex.common.exception.user.CaptchaException;
+import com.aidex.common.exception.user.CaptchaExpireException;
+import com.aidex.common.exception.user.UserPasswordNotMatchException;
 import com.aidex.common.utils.DateUtils;
+import com.aidex.common.utils.MessageUtils;
 import com.aidex.common.utils.ServletUtils;
 import com.aidex.common.utils.StringUtils;
 import com.aidex.common.utils.ip.IpUtils;
 import com.aidex.framework.cache.ConfigUtils;
-import com.aidex.system.service.ISysUserService;
-import org.springframework.beans.factory.annotation.Value;
 import com.aidex.framework.manager.AsyncManager;
+import com.aidex.framework.manager.factory.AsyncFactory;
+import com.aidex.system.service.ISysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
-import com.aidex.common.constant.Constants;
-import com.aidex.common.core.domain.model.LoginUser;
-import com.aidex.common.core.redis.RedisCache;
-import com.aidex.common.exception.user.CaptchaException;
-import com.aidex.common.exception.user.CaptchaExpireException;
-import com.aidex.common.exception.user.UserPasswordNotMatchException;
-import com.aidex.common.utils.MessageUtils;
-import com.aidex.framework.manager.factory.AsyncFactory;
+
+import javax.annotation.Resource;
 
 /**
  * 登录校验方法
@@ -54,22 +54,8 @@ public class SysLoginService
     // 是否允许账户多终端同时登录（true允许 false不允许）
     @Value("${token.soloLogin}")
     private boolean soloLogin;
-    /**
-     * 登录验证
-     * 
-     * @param username 用户名
-     * @param password 密码
-     * @param code 验证码
-     * @param uuid 唯一标识
-     * @return 结果
-     */
-    public String login(String username, String password, String code, String uuid)
-    {
-        // 验证码开关
-        if (ConfigUtils.getConfigBooleanValueByKey("sys.captcha.onOff",true))
-        {
-            validateCaptcha(username, code, uuid);
-        }
+
+    public String login(String username, String password){
         // 用户验证
         Authentication authentication = null;
         try
@@ -108,6 +94,24 @@ public class SysLoginService
         AsyncManager.me().execute(AsyncFactory.recordLogininfor(username, Constants.LOGIN_SUCCESS, MessageUtils.message("user.login.success")));
         recordLoginInfo(loginUser.getUser().getId());
         return token;
+    }
+    /**
+     * 登录验证
+     * 
+     * @param username 用户名
+     * @param password 密码
+     * @param code 验证码
+     * @param uuid 唯一标识
+     * @return 结果
+     */
+    public String login(String username, String password, String code, String uuid)
+    {
+        // 验证码开关
+        if (ConfigUtils.getConfigBooleanValueByKey("sys.captcha.onOff",true))
+        {
+            validateCaptcha(username, code, uuid);
+        }
+        return this.login(username, password);
     }
 
     /**

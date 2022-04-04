@@ -5,10 +5,8 @@ import com.aidex.common.core.domain.AjaxResult;
 import com.aidex.common.core.domain.entity.SysMenu;
 import com.aidex.common.core.domain.entity.SysUser;
 import com.aidex.common.core.domain.model.LoginBody;
-import com.aidex.common.core.domain.model.LoginUser;
 import com.aidex.common.core.redis.RedisCache;
 import com.aidex.common.utils.SecurityUtils;
-import com.aidex.common.utils.ServletUtils;
 import com.aidex.framework.web.service.SysLoginService;
 import com.aidex.framework.web.service.SysPermissionService;
 import com.aidex.framework.web.service.TokenService;
@@ -73,6 +71,16 @@ public class SysLoginController {
         ajax.put(Constants.TOKEN, token);
         return ajax;
     }
+
+    @PostMapping("/app/login")
+    public AjaxResult appLogin(@RequestBody LoginBody loginBody) {
+        AjaxResult ajax = AjaxResult.success();
+        // 生成令牌
+        String token = loginService.login(loginBody.getUsername(), loginBody.getPassword());
+        ajax.put(Constants.TOKEN, token);
+        return ajax;
+    }
+
 
     /**
      * 获取用户信息

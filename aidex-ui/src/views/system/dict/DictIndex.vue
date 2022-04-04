@@ -235,7 +235,7 @@ export default {
       this.showAddModal = false
       this.showEditModal = false
       this.loading = true
-      debugger
+
       listType(this.addDateRange(this.queryParam, this.dateRange)).then(response => {
           this.list = response.data.list
           this.total = response.data.total

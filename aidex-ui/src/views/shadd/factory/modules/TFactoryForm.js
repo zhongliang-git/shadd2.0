@@ -319,14 +319,12 @@ export default {
       this.form.purchaseList = [...purchaseList, newData]
     },
     purchaseEdit(index, data, status) {
-      debugger
       const newPurchaseList = [...this.form.purchaseList]
       data.editable = status
       newPurchaseList[index] = data
       this.form.purchaseList = newPurchaseList
     },
     purchaseChange(data, column, index) {
-      debugger
       const newPurchaseList = [...this.form.purchaseList]
       if (column === 'image') {
         if (data.file.status === 'uploading') {
@@ -432,7 +430,6 @@ export default {
       })
     },
     addOffer(index) {
-      debugger
       let offers = [...this.form.purchaseList][index].offers
       const newOffer = {
         price: undefined,
@@ -451,7 +448,6 @@ export default {
       this.form.purchaseList = newPurchaseList
     },
     offerEdit(purchaseIndex, offerIndex, offerModel, status) {
-      debugger
       const offers = [...this.form.purchaseList][purchaseIndex].offers
       offerModel.editable = status
       offers[offerIndex] = offerModel
@@ -490,7 +486,6 @@ export default {
       })
     },
     changeSiteData(e, purchaseIndex, offerIndex) {
-      debugger
       const offers = [...this.form.purchaseList][purchaseIndex].offers
       const offer = offers[offerIndex]
       offer.siteid = e
@@ -512,7 +507,7 @@ export default {
       this.updatePageData()
     },
     imageDetailsCustomRequest(e, purchaseIndex) {
-      debugger
+
     },
     purchaseImageBeforeUpload(file, index) {
       const purchaseList = [...this.form.purchaseList]

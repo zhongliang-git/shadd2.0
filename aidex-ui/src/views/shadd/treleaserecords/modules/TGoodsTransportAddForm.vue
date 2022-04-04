@@ -15,6 +15,7 @@
               show-search
               placeholder="请选择铁路运线"
               @blur="cleanSearchMess"
+              defaultActiveFirstOption={false}
               :filter-option="setSearchMess"
               @inputKeydown="e => enterKeydown(e)"
               :value="form.lineid"

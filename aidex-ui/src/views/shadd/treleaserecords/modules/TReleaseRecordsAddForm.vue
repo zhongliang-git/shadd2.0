@@ -17,6 +17,7 @@
               @blur="cleanSearchMess"
               :filter-option="setSearchMess"
               @inputKeydown="e => enterKeydown(e)"
+              defaultActiveFirstOption={false}
               :value="form.dactoryid"
               v-model="form.dactoryid"
               @change="dactoryChange"
@@ -35,6 +36,7 @@
               <a-select
                 show-search
                 placeholder="请选择产品"
+                defaultActiveFirstOption={false}
                 :value="form.productid"
                 v-model="form.productid"
                 @change="productChange"
@@ -53,6 +55,7 @@
             <a-select
               show-search
               placeholder="请选择站点"
+              defaultActiveFirstOption={false}
               :value="form.siteid"
               v-model="form.siteid"
             >

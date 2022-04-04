@@ -1,0 +1,194 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aidex.shadd.userInfo.mapper.UserInfoMapper">
+
+    <sql id="userInfoColumns">
+        a.balance as "balance",
+
+        a.total as "total",
+
+        a.user_id as "userId",
+
+        a.integrate as "integrate",
+
+        a.remark as "remark",
+
+        a.id as "id",
+
+        a.create_by as "createBy",
+
+        a.create_dept as "createDept",
+
+        a.create_time as "createTime",
+
+        a.update_by as "updateBy",
+
+        a.update_time as "updateTime",
+
+        a.update_ip as "updateIp",
+
+        a.version as "version",
+
+        a.del_flag as "delFlag",
+
+         u.name as "userName"
+
+    </sql>
+
+    <sql id="userInfoJoins">
+        LEFT JOIN sys_user u ON u.id = a.user_id
+    </sql>
+
+    <select id="get" resultType="UserInfo">
+        SELECT
+            <include refid="userInfoColumns"/>
+        FROM user_info a
+        <include refid="userInfoJoins"/>
+        WHERE a.id = #{id}
+    </select>
+
+    <select id="findList" resultType="UserInfo">
+        SELECT
+            <include refid="userInfoColumns"/>
+        FROM user_info a
+        <include refid="userInfoJoins"/>
+        <where>
+            a.del_flag = #{DEL_FLAG_NORMAL}
+            <if test="balance != null ">
+                AND a.balance = #{balance}
+            </if>
+            <if test="total != null ">
+                AND a.total = #{total}
+            </if>
+            <if test="userId != null and userId != ''">
+                AND a.user_id = #{userId}
+            </if>
+            <if test="integrate != null ">
+                AND a.integrate = #{integrate}
+            </if>
+            <if test="userName != null and userName != ''">
+                AND u.name like concat('%', #{userName}, '%')
+            </if>
+        </where>
+        <choose>
+            <when test="page !=null and page.orderByColumn != null and page.orderByColumn != ''">
+                ORDER BY ${page.orderByColumn}
+            </when>
+            <otherwise>
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="findListWithUnique" resultType="UserInfo">
+        SELECT
+            a.id
+        FROM user_info a
+        <include refid="userInfoJoins"/>
+        <where>
+            a.del_flag = #{DEL_FLAG_NORMAL}
+            <if test="notEqualId != null and notEqualId != ''">
+                AND id != #{notEqualId}
+            </if>
+        </where>
+    </select>
+
+
+    <insert id="insert">
+        INSERT INTO user_info(
+            balance,
+
+            total,
+
+            user_id,
+
+            integrate,
+
+            remark,
+
+            id,
+
+            create_by,
+
+            create_dept,
+
+            create_time,
+
+            update_by,
+
+            update_time,
+
+            update_ip,
+
+            version,
+
+            del_flag
+
+        ) VALUES (
+            #{balance},
+
+            #{total},
+
+            #{userId},
+
+            #{integrate},
+
+            #{remark},
+
+            #{id},
+
+            #{createBy},
+
+            #{createDept},
+
+            #{createTime},
+
+            #{updateBy},
+
+            #{updateTime},
+
+            #{updateIp},
+
+            #{version},
+
+            #{delFlag}
+
+        )
+    </insert>
+
+    <update id="update">
+        UPDATE user_info SET
+            balance = #{balance},
+            total = #{total},
+            user_id = #{userId},
+            integrate = #{integrate},
+            remark = #{remark},
+            update_by = #{updateBy},
+            update_time = #{updateTime},
+            update_ip = #{updateIp},
+            version = version + 1
+        WHERE id = #{id} and version = #{version}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE user_info SET
+            status = #{status},
+            version = version + 1
+        WHERE id = #{id}
+    </update>
+
+    <update id="delete">
+        UPDATE user_info SET
+            del_flag = #{DEL_FLAG_DELETE}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteUserInfoByIds">
+        UPDATE user_info SET
+            del_flag = '1'
+        WHERE id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

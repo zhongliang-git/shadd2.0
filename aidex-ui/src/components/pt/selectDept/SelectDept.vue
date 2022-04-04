@@ -40,16 +40,16 @@
                 <a-icon slot="org" :component="allIcon.companyFillIcon" class="depIcon" />
                 <a-icon slot="company" :component="allIcon.companyIcon" class="depIcon" />
                 <a-icon slot="dept" :component="allIcon.connectionsIcon" class="depIcon" />
-                <template slot="title" slot-scope="{deptTitle, attributes }">
-                  <span v-if="deptTitle.indexOf(searchValue) > -1">
-                    {{ deptTitle.substr(0, deptTitle.indexOf(searchValue)) }}
+                <template slot="title" slot-scope="{title, attributes }">
+                  <span v-if="title.indexOf(searchValue) > -1">
+                    {{ title.substr(0, title.indexOf(searchValue)) }}
                     <span style="color: #f50">{{ searchValue }}</span>
-                    {{ deptTitle.substr(deptTitle.indexOf(searchValue) + searchValue.length) }}
+                    {{ title.substr(title.indexOf(searchValue) + searchValue.length) }}
                   </span>
                   <span v-else-if="attributes.deptPinyin.indexOf(searchValue) > -1">
-                    <span style="color: #f50">{{ deptTitle }}</span>
+                    <span style="color: #f50">{{ title }}</span>
                   </span>
-                  <span v-else>{{ deptTitle }}</span>
+                  <span v-else>{{ title }}</span>
                 </template>
               </a-tree>
               <a-tree
@@ -68,16 +68,16 @@
                 <a-icon slot="org" :component="allIcon.companyFillIcon" class="depIcon" />
                 <a-icon slot="company" :component="allIcon.companyIcon" class="depIcon" />
                 <a-icon slot="dept" :component="allIcon.connectionsIcon" class="depIcon" />
-                <template slot="title" slot-scope="{ deptTitle, attributes }">
-                  <span v-if="deptTitle.indexOf(searchValue) > -1">
-                    {{ deptTitle.substr(0, deptTitle.indexOf(searchValue)) }}
+                <template slot="title" slot-scope="{ title, attributes }">
+                  <span v-if="title.indexOf(searchValue) > -1">
+                    {{ title.substr(0, title.indexOf(searchValue)) }}
                     <span style="color: #f50">{{ searchValue }}</span>
-                    {{ deptTitle.substr(deptTitle.indexOf(searchValue) + searchValue.length) }}
+                    {{ title.substr(title.indexOf(searchValue) + searchValue.length) }}
                   </span>
                   <span v-else-if="attributes.deptPinyin.indexOf(searchValue) > -1">
-                    <span style="color: #f50">{{ deptTitle }}</span>
+                    <span style="color: #f50">{{ title }}</span>
                   </span>
-                  <span v-else>{{ deptTitle }}</span>
+                  <span v-else>{{ title }}</span>
                 </template>
               </a-tree>
             </div>

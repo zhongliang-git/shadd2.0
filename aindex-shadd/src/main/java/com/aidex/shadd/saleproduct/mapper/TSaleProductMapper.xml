@@ -46,7 +46,8 @@
     <select id="queryGoods" resultType="TSaleProduct">
         SELECT
             <include refid="innerJoinData"/>
-            a.id as "id", r.repertory repertoryNumber,a.price as "price"
+            a.id as "id", r.repertory repertoryNumber,
+            a.price as "price",p.imageDetailList as "imageDetailList"
         FROM t_sale_product a
         <include refid="tSaleProductJoins"/>
         inner join T_REPERTORY r on r.spid = a.id

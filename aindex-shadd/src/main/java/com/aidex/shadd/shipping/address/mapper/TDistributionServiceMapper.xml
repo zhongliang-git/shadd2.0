@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aidex.shadd.shipping.address.mapper.TDistributionServiceMapper">
+
+    <sql id="tDistributionServiceColumns">
+        a.site as "site",
+
+        a.receiving_id as "receivingId",
+
+        a.shipping_fee as "shippingFee",
+
+        a.remark as "remark",
+
+        a.id as "id",
+
+        a.create_by as "createBy",
+
+        a.create_dept as "createDept",
+
+        a.create_time as "createTime",
+
+        a.update_by as "updateBy",
+
+        a.update_time as "updateTime",
+
+        a.update_ip as "updateIp",
+
+        a.version as "version",
+
+        a.del_flag as "delFlag",
+
+        s.name as "siteName"
+    </sql>
+
+    <sql id="tDistributionServiceJoins">
+        LEFT JOIN T_SITE s on s.id = a.site
+    </sql>
+
+    <resultMap id="distributionServiceMap" type="com.aidex.shadd.shipping.address.domain.TDistributionService">
+        <result property="id" column="id"/>
+        <result property="site" column="site"/>
+        <result property="shippingFee" column="shippingFee"/>
+        <result property="receivingId" column="receivingId"/>
+        <result property="remark" column="remark"/>
+        <result property="siteName" column="siteName"/>
+        <result property="version" column="version"/>
+        <collection property="sites" column="sid"
+                    ofType="com.aidex.shadd.site.domain.TSite">
+            <result property="id" column="sid"/>
+            <result property="name" column="sname"/>
+        </collection>
+    </resultMap>
+
+    <select id="get" resultMap="distributionServiceMap">
+        SELECT
+            s.id as "sid",s.name as "sname",
+            <include refid="tDistributionServiceColumns"/>
+        FROM t_distribution_service a
+        <include refid="tDistributionServiceJoins"/>
+        WHERE a.id = #{id}
+    </select>
+
+    <select id="findList" resultType="TDistributionService">
+        SELECT
+            <include refid="tDistributionServiceColumns"/>
+        FROM t_distribution_service a
+        <include refid="tDistributionServiceJoins"/>
+        <where>
+            a.del_flag = #{DEL_FLAG_NORMAL}
+            <if test="site != null and site != ''">
+                and a.site like concat('%', #{site}, '%')
+            </if>
+            <if test="receivingId != null and receivingId != ''">
+                AND a.receiving_id = #{receivingId}
+            </if>
+            <if test="shippingFee != null ">
+                AND a.shipping_fee = #{shippingFee}
+            </if>
+            <if test="siteName != null and siteName != ''">
+                AND s.name = like concat('%', #{siteName}, '%')
+            </if>
+        </where>
+        <choose>
+            <when test="page !=null and page.orderByColumn != null and page.orderByColumn != ''">
+                ORDER BY ${page.orderByColumn}
+            </when>
+            <otherwise>
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="findListWithUnique" resultType="TDistributionService">
+        SELECT
+            a.id
+        FROM t_distribution_service a
+        <include refid="tDistributionServiceJoins"/>
+        <where>
+            a.del_flag = #{DEL_FLAG_NORMAL}
+            <if test="notEqualId != null and notEqualId != ''">
+                AND id != #{notEqualId}
+            </if>
+        </where>
+    </select>
+
+
+    <insert id="insert">
+        INSERT INTO t_distribution_service(
+            site,
+
+            receiving_id,
+
+            shipping_fee,
+
+            remark,
+
+            id,
+
+            create_by,
+
+            create_dept,
+
+            create_time,
+
+            update_by,
+
+            update_time,
+
+            update_ip,
+
+            version,
+
+            del_flag
+
+        ) VALUES (
+            #{site},
+
+            #{receivingId},
+
+            #{shippingFee},
+
+            #{remark},
+
+            #{id},
+
+            #{createBy},
+
+            #{createDept},
+
+            #{createTime},
+
+            #{updateBy},
+
+            #{updateTime},
+
+            #{updateIp},
+
+            #{version},
+
+            #{delFlag}
+
+        )
+    </insert>
+
+    <update id="update">
+        UPDATE t_distribution_service SET
+            site = #{site},
+            receiving_id = #{receivingId},
+            shipping_fee = #{shippingFee},
+            remark = #{remark},
+            update_by = #{updateBy},
+            update_time = #{updateTime},
+            update_ip = #{updateIp},
+            version = version + 1
+        WHERE id = #{id} and version = #{version}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE t_distribution_service SET
+            status = #{status},
+            version = version + 1
+        WHERE id = #{id}
+    </update>
+
+    <update id="delete">
+        UPDATE t_distribution_service SET
+            del_flag = #{DEL_FLAG_DELETE}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteTDistributionServiceByIds">
+        UPDATE t_distribution_service SET
+            del_flag = '1'
+        WHERE id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>
