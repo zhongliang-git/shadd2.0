@@ -3,6 +3,8 @@ package com.aidex.shadd.consumer.service.impl;
 import com.aidex.common.core.domain.entity.SysUser;
 import com.aidex.common.exception.SysException;
 import com.aidex.common.utils.StringUtils;
+import com.aidex.shadd.consumer.domain.ConsumeRecordModel;
+import com.aidex.shadd.consumer.mapper.IConsumerMapper;
 import com.aidex.shadd.consumer.domain.ConsumerModel;
 import com.aidex.shadd.consumer.service.IConsumerService;
 import com.aidex.shadd.tInvitationcode.domain.TInvitationCode;
@@ -29,7 +31,8 @@ public class ConsumerServiceImpl implements IConsumerService {
     private ISysUserService userService;
     @Autowired
     private TInvitationCodeService invitationCodeService;
-
+    @Autowired
+    private IConsumerMapper consumerDao;
     @Override
     @Transactional(readOnly = false)
     public ConsumerModel register(ConsumerModel consumerModel) {
@@ -58,6 +61,17 @@ public class ConsumerServiceImpl implements IConsumerService {
         // 更新邀请码
         invitationCodeService.save(invitationCode);
         return consumerModel;
+    }
+
+    @Override
+    @Transactional(readOnly = false)
+    public boolean modifyUserPhoneNumber(String userId, String phone) {
+        return consumerDao.updateUserPhoneNumberBYId(userId, phone) > 0;
+    }
+
+    @Override
+    public List<ConsumeRecordModel> findConsumeRecord(ConsumeRecordModel consumeRecordModel) {
+        return consumerDao.queryConsumeRecord(consumeRecordModel);
     }
 
 

@@ -3,6 +3,9 @@ package com.aidex.shadd.releaserecords.domain;
 import com.aidex.common.annotation.Excel;
 import com.aidex.common.core.domain.BaseEntity;
 import lombok.Data;
+
+import java.math.BigDecimal;
+
 /**
  * 货物运输子表对象 t_goods_transport
  * @author ${functionAuthor}
@@ -20,7 +23,7 @@ public class TGoodsTransport extends BaseEntity<TGoodsTransport>
 
     /** 到货数量 */
     @Excel(name = "到货数量")
-    private Long number;
+    private BigDecimal number;
 
     /** 铁路运线 */
     @Excel(name = "铁路运线")

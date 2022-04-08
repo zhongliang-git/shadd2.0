@@ -26,4 +26,9 @@ public interface TRepertoryMapper extends BaseMapper<TRepertory>
             "accountopen= accountopen + #{d.repertory} where spid = #{d.spid}"
     })
     int updateRepertory(@Param("d") TRepertory repertory);
+
+    @Update({
+            "UPDATE T_REPERTORY SET repertory=repertory-#{d.repertory},obligation=obligation+#{d.repertory} where spid = #{d.spid} and repertory-#{d.repertory} >= 0"
+    })
+    int updateProduct(@Param("d") TRepertory detail);
 }

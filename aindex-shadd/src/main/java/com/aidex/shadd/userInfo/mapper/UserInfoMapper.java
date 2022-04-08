@@ -4,6 +4,7 @@ import com.aidex.common.core.mapper.BaseMapper;
 import com.aidex.shadd.userInfo.domain.UserInfo;
 import org.apache.ibatis.annotations.Param;
 import org.apache.ibatis.annotations.Update;
+import org.springframework.stereotype.Repository;
 
 import java.math.BigDecimal;
 
@@ -13,6 +14,7 @@ import java.math.BigDecimal;
  * @email 876154169@qq.com
  * @date 2022-04-03
  */
+@Repository
 public interface UserInfoMapper extends BaseMapper<UserInfo>
 {
 
@@ -34,4 +36,10 @@ public interface UserInfoMapper extends BaseMapper<UserInfo>
             "WHERE user_id = #{userId}"
     })
     int updateBalanceAdd(@Param("userId") String userId,@Param("money") BigDecimal money);
+
+    @Update({
+            "UPDATE user_info SET balance = balance - #{money} " +
+            "WHERE user_id = #{userId} and (balance - #{money})>=0"
+    })
+    int updateBalanceDeduction(@Param("userId") String userId,@Param("money") BigDecimal money);
 }

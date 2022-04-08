@@ -21,23 +21,23 @@ public class TRepertory extends BaseEntity<TRepertory>
 
     /** 库存 */
     @Excel(name = "库存")
-    private Long repertory;
+    private BigDecimal repertory;
 
     /** 总量 */
     @Excel(name = "总量")
-    private Long total;
+    private BigDecimal total;
 
     /** 已结算量 */
     @Excel(name = "已结算量")
-    private Long clsd;
+    private BigDecimal clsd;
 
     /** 未结算量 */
     @Excel(name = "未结算量")
-    private Long accountopen;
+    private BigDecimal accountopen;
 
     /** 待结算 */
     @Excel(name = "待结算")
-    private Long obligation;
+    private BigDecimal obligation;
 
     /** 总结算金额 */
     @Excel(name = "总结算金额")

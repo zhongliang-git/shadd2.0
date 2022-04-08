@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aidex.shadd.order.mapper.TOrderDetailMapper">
+
+    <sql id="tOrderDetailColumns">
+        a.product_id as "productId",
+
+        a.price as "price",
+
+        a.shipping_fee as "shippingFee",
+
+        a.num as "num",
+
+        a.total as "total",
+
+        a.order_id as "orderId",
+
+        a.remark as "remark",
+
+        a.id as "id",
+
+        a.create_by as "createBy",
+
+        a.create_dept as "createDept",
+
+        a.create_time as "createTime",
+
+        a.update_by as "updateBy",
+
+        a.update_time as "updateTime",
+
+        a.update_ip as "updateIp",
+
+        a.version as "version",
+
+        a.del_flag as "delFlag",
+
+        concat(p.minerals, '|', p.specification) as "productName"
+
+    </sql>
+
+    <sql id="tOrderDetailJoins">
+        LEFT JOIN t_sale_product s ON s.id = a.product_id
+        LEFT JOIN t_purchase pu on pu.id = s.productId
+        LEFT JOIN t_product p ON p.id = pu.productId
+    </sql>
+
+    <select id="get" resultType="TOrderDetail">
+        SELECT
+            <include refid="tOrderDetailColumns"/>
+        FROM t_order_detail a
+        <include refid="tOrderDetailJoins"/>
+        WHERE a.id = #{id}
+    </select>
+
+    <select id="findList" resultType="TOrderDetail">
+        SELECT
+            <include refid="tOrderDetailColumns"/>
+        FROM t_order_detail a
+        <include refid="tOrderDetailJoins"/>
+        <where>
+            a.del_flag = #{DEL_FLAG_NORMAL}
+            <if test="productId != null and productId != ''">
+                AND a.product_id = #{productId}
+            </if>
+            <if test="price != null ">
+                AND a.price = #{price}
+            </if>
+            <if test="shippingFee != null ">
+                AND a.shipping_fee = #{shippingFee}
+            </if>
+            <if test="num != null and num != ''">
+                and a.num like concat('%', #{num}, '%')
+            </if>
+            <if test="total != null ">
+                AND a.total = #{total}
+            </if>
+            <if test="orderId != null and orderId != ''">
+                AND a.order_id = #{orderId}
+            </if>
+            <if test="productName != null and productName != ''">
+                AND (p.minerals like concat('%', #{productName}, '%')
+                    or p.specification like concat('%', #{productName}, '%')
+                    or concat(p.minerals, '|', p.specification)
+                    like concat('%', #{productName}, '%'))
+            </if>
+
+        </where>
+        <choose>
+            <when test="page !=null and page.orderByColumn != null and page.orderByColumn != ''">
+                ORDER BY ${page.orderByColumn}
+            </when>
+            <otherwise>
+            </otherwise>
+        </choose>
+    </select>
+
+    <select id="findListWithUnique" resultType="TOrderDetail">
+        SELECT
+            a.id
+        FROM t_order_detail a
+        <include refid="tOrderDetailJoins"/>
+        <where>
+            a.del_flag = #{DEL_FLAG_NORMAL}
+            <if test="notEqualId != null and notEqualId != ''">
+                AND id != #{notEqualId}
+            </if>
+        </where>
+    </select>
+
+
+    <insert id="insert">
+        INSERT INTO t_order_detail(
+            product_id,
+
+            price,
+
+            shipping_fee,
+
+            num,
+
+            total,
+
+            order_id,
+
+            remark,
+
+            id,
+
+            create_by,
+
+            create_dept,
+
+            create_time,
+
+            update_by,
+
+            update_time,
+
+            update_ip,
+
+            version,
+
+            del_flag
+
+        ) VALUES (
+            #{productId},
+
+            #{price},
+
+            #{shippingFee},
+
+            #{num},
+
+            #{total},
+
+            #{orderId},
+
+            #{remark},
+
+            #{id},
+
+            #{createBy},
+
+            #{createDept},
+
+            #{createTime},
+
+            #{updateBy},
+
+            #{updateTime},
+
+            #{updateIp},
+
+            #{version},
+
+            #{delFlag}
+
+        )
+    </insert>
+
+    <update id="update">
+        UPDATE t_order_detail SET
+            product_id = #{productId},
+            price = #{price},
+            shipping_fee = #{shippingFee},
+            num = #{num},
+            total = #{total},
+            order_id = #{orderId},
+            remark = #{remark},
+            update_by = #{updateBy},
+            update_time = #{updateTime},
+            update_ip = #{updateIp},
+            version = version + 1
+        WHERE id = #{id} and version = #{version}
+    </update>
+
+    <update id="updateStatus">
+        UPDATE t_order_detail SET
+            status = #{status},
+            version = version + 1
+        WHERE id = #{id}
+    </update>
+
+    <update id="delete">
+        UPDATE t_order_detail SET
+            del_flag = #{DEL_FLAG_DELETE}
+        WHERE id = #{id}
+    </update>
+
+    <delete id="deleteTOrderDetailByIds">
+        UPDATE t_order_detail SET
+            del_flag = '1'
+        WHERE id in
+        <foreach item="id" collection="array" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+</mapper>

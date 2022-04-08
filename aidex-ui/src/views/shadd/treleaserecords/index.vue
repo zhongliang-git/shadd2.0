@@ -202,6 +202,12 @@ export default {
           width: '10%'
         },
         {
+          title: '创建日期',
+          dataIndex: 'createTime',
+          align: 'right',
+          width: '10%'
+        },
+        {
           title: '操作',
           dataIndex: 'operation',
           align: 'center',

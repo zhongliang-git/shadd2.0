@@ -155,6 +155,19 @@ public class UserInfoServiceImpl extends BaseServiceImpl<UserInfoMapper, UserInf
         return userInfos.get(0);
     }
 
+    @Override
+    @Transactional(readOnly = false)
+    public void deductionBalance(String userId, BigDecimal total) {
+        String key = this.getLock(userId);
+        try{
+            if (mapper.updateBalanceDeduction(userId, total) < 1) {
+                throw new SysException("用户余额不足,请联系客服进行充值");
+            }
+        } finally {
+            redisLock.unlock(key);
+        }
+    }
+
     @SneakyThrows
     private String getLock(String userId) {
         String key = USER_BALANCE + userId;

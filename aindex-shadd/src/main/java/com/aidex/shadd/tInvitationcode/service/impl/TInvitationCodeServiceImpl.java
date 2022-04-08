@@ -7,7 +7,7 @@ import com.aidex.framework.cache.UserUtils;
 import com.aidex.shadd.tInvitationcode.domain.TInvitationCode;
 import com.aidex.shadd.tInvitationcode.mapper.TInvitationCodeMapper;
 import com.aidex.shadd.tInvitationcode.service.TInvitationCodeService;
-import com.aidex.shadd.util.InviteCodeUtil;
+import com.aidex.shadd.util.CodeUtil;
 import com.github.pagehelper.PageInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -109,12 +109,12 @@ public class TInvitationCodeServiceImpl extends BaseServiceImpl<TInvitationCodeM
     @Override
     @Transactional(readOnly = false)
     public TInvitationCode create() {
-        String code = InviteCodeUtil.generateShortUuid();
+        String code = CodeUtil.generateShortUuid();
         TInvitationCode tInvitationCode = new TInvitationCode();
         tInvitationCode.setCode(code);
         boolean exists = !CollectionUtils.isEmpty(mapper.findListWithUnique(tInvitationCode));
         while (exists) {
-            code = InviteCodeUtil.generateShortUuid();
+            code = CodeUtil.generateShortUuid();
             exists = !CollectionUtils.isEmpty(mapper.findListWithUnique(tInvitationCode));
         }
         super.save(tInvitationCode);

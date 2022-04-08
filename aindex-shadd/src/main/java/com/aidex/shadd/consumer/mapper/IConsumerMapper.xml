@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aidex.shadd.consumer.mapper.IConsumerMapper">
+    <sql id="consumeRecordColumn">
+        a.id as "id",
+        a.code as "code",
+        a.money as "money",
+        a.userId as "userId",
+        a.create_time as "createTime",
+        a.type as "type"
+    </sql>
+
+    <select id="queryConsumeRecord" resultType="com.aidex.shadd.consumer.domain.ConsumeRecordModel">
+        SELECT
+        <include refid="consumeRecordColumn"/>
+        FROM v_consume_record a
+        WHERE a.userId = #{userId}
+        <if test="code != null and code != ''">
+            AND a.code = concat('%', #{code}, '%')
+        </if>
+        <if test="createTime != null">
+            AND DATE_FORMAT(a.create_time,'%Y-%m-%d') = DATE_FORMAT(#{createTime},'%Y-%m-%d')
+        </if>
+        <if test="money != null and money != ''">
+            AND a.money = money
+        </if>
+        <if test="types != null and types.size > 0">
+            and type in
+            <foreach item="type" collection="types" open="(" separator="," close=")">
+                #{type}
+            </foreach>
+        </if>
+        LIMIT 0,100
+    </select>
+
+</mapper>

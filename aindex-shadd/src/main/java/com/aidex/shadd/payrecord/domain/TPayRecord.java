@@ -32,4 +32,7 @@ public class TPayRecord extends BaseEntity<TPayRecord>
     /** 客户 */
     @Excel(name = "客户名称")
     private String userName;
+
+    /** 订单编号 */
+    private String code;
 }

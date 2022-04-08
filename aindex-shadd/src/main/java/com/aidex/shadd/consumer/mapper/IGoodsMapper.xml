@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.aidex.shadd.consumer.mapper.IGoodsMapper">
+
+    <select id="queryGoodsList" resultType="com.aidex.shadd.consumer.domain.GoodsModel">
+        SELECT * FROM V_GOODS WHERE addressId = #{addressId}
+        <where>
+            <if test="d.goodsName != null and d.goodsName != ''">
+                and goodsName like concat('%', #{goodsName}, '%')
+            </if>
+        </where>
+    </select>
+
+</mapper>

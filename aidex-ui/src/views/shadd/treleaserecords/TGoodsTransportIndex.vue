@@ -177,6 +177,20 @@ export default {
           width: '10%'
         },
         {
+          title: '创建日期',
+          dataIndex: 'createTime',
+          scopedSlots: { customRender: 'createTime' },
+          align: 'center',
+          width: '10%'
+        },
+        {
+          title: '修改日期',
+          dataIndex: 'updateTime',
+          scopedSlots: { customRender: 'updateTime' },
+          align: 'center',
+          width: '10%'
+        },
+        {
           title: '操作',
           dataIndex: 'operation',
           align: 'center',

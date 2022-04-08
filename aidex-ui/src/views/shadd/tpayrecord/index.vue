@@ -6,6 +6,11 @@
         <a-form :labelCol="labelCol" :wrapperCol="wrapperCol" ref="queryForm">
           <a-row :gutter="32">
             <a-col :span="6" >
+              <a-form-item label="订单编号">
+                <a-input v-model="queryParam.code" placeholder="请输入订单编号" allow-clear @keyup.enter.native="handleQuery"/>
+              </a-form-item>
+            </a-col>
+            <a-col :span="6" >
               <a-form-item label="客户名称">
                 <a-input v-model="queryParam.userName" placeholder="请输入客户名称" allow-clear @keyup.enter.native="handleQuery"/>
               </a-form-item>
@@ -138,10 +143,18 @@ export default {
 
         payMoney: undefined,
 
-        donateMoney: undefined
+        donateMoney: undefined,
+
+        code: undefined
 
       },
       columns: [
+        {
+          title: '订单编号',
+          dataIndex: 'code',
+          align: 'left',
+          width: '20%'
+        },
         {
           title: '客户',
           dataIndex: 'userName',

@@ -70,7 +70,7 @@
                 and a.address like concat('%', #{address}, '%')
             </if>
             <if test="userid != null and userid != ''">
-                and a.userId like concat('%', #{userid}, '%')
+                and a.userId = #{userid}
             </if>
             <if test="phone != null and phone != ''">
                 AND a.phone = #{phone}
@@ -79,7 +79,7 @@
                 and a.consignee like concat('%', #{consignee}, '%')
             </if>
             <if test="userName != null and userName != ''">
-                and u.consignee like concat('%', #{userName}, '%')
+                and u.name like concat('%', #{userName}, '%')
             </if>
         </where>
         <choose>

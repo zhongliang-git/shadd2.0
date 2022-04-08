@@ -7,6 +7,7 @@ import com.aidex.shadd.payrecord.domain.TPayRecord;
 import com.aidex.shadd.payrecord.mapper.TPayRecordMapper;
 import com.aidex.shadd.payrecord.service.TPayRecordService;
 import com.aidex.shadd.userInfo.service.UserInfoService;
+import com.aidex.shadd.util.CodeUtil;
 import com.github.pagehelper.PageInfo;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -118,6 +119,7 @@ public class TPayRecordServiceImpl extends BaseServiceImpl<TPayRecordMapper, TPa
 
     @Override
     public boolean saveAndUpdateBalance(TPayRecord tPayRecord) {
+        tPayRecord.setCode(CodeUtil.generatePayCode());
         boolean isSucceed = super.save(tPayRecord);
         if (!isSucceed) {
             return false;

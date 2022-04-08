@@ -32,4 +32,12 @@ public interface TRepertoryService extends BaseService<TRepertory>
      * @return 结果
      */
     boolean modifyRepertoryNumber(TRepertory repertory);
+
+    /**
+     * 库存销货
+     * @param: repertory 库存信息
+     * @author zhongliang
+     * @date: 2022/4/7 12:37
+     */
+    boolean repertorySales(TRepertory repertory);
 }

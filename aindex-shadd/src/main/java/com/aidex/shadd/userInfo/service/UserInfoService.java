@@ -2,6 +2,7 @@ package com.aidex.shadd.userInfo.service;
 
 import com.aidex.common.core.service.BaseService;
 import com.aidex.shadd.userInfo.domain.UserInfo;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 
@@ -38,4 +39,14 @@ public interface UserInfoService extends BaseService<UserInfo>
      * @date: 2022/4/4 3:26
      */
     UserInfo findUserInfo(String id);
+
+    /**
+     * 扣减用户余额
+     * @param: userId 用户Id
+     * @param: total 扣减金额
+     * @author zhongliang
+     * @date: 2022/4/7 16:10
+     */
+    @Transactional(readOnly = false)
+    void deductionBalance(String userId, BigDecimal total);
 }

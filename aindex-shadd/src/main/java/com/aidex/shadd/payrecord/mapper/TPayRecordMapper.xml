@@ -5,6 +5,8 @@
     <sql id="tPayRecordColumns">
         a.consumer_id as "consumerId",
 
+        a.code as "code",
+
         a.pay_money as "payMoney",
 
         a.donate_money as "donateMoney",
@@ -64,6 +66,9 @@
             <if test="userName != null and userName != ''">
                 AND u.name like concat('%', #{userName}, '%')
             </if>
+            <if test="code != null and code != ''">
+                AND a.code like concat('%', #{code}, '%')
+            </if>
         </where>
         <choose>
             <when test="page !=null and page.orderByColumn != null and page.orderByColumn != ''">
@@ -92,6 +97,8 @@
         INSERT INTO t_pay_record(
             consumer_id,
 
+            code,
+
             pay_money,
 
             donate_money,
@@ -118,6 +125,8 @@
 
         ) VALUES (
             #{consumerId},
+
+            #{code},
 
             #{payMoney},
 
@@ -155,6 +164,7 @@
             update_by = #{updateBy},
             update_time = #{updateTime},
             update_ip = #{updateIp},
+            code = #{code},
             version = version + 1
         WHERE id = #{id} and version = #{version}
     </update>

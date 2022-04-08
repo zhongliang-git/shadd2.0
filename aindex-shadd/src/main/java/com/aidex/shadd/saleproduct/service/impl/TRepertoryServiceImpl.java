@@ -119,12 +119,11 @@ public class TRepertoryServiceImpl extends BaseServiceImpl<TRepertoryMapper, TRe
         if (repertory == null) {
             return false;
         }
-        BigDecimal repertoryNumber = BigDecimal.valueOf(repertory.getRepertory());
-        if (repertoryNumber == null) {
+        if (repertory.getRepertory() == null) {
             return false;
         }
-        repertory.setClsd(0L);
-        repertory.setObligation(0L);
+        repertory.setClsd(new BigDecimal(0));
+        repertory.setObligation(new BigDecimal(0));
         repertory.setTotalAmount(new BigDecimal(0));
         return super.save(repertory);
     }
@@ -135,6 +134,20 @@ public class TRepertoryServiceImpl extends BaseServiceImpl<TRepertoryMapper, TRe
         try {
             // 修改库存
             return mapper.updateRepertory(repertory) > 0;
+        } finally {
+            redisLock.unlock(key);
+        }
+    }
+
+    @Override
+    public boolean repertorySales(TRepertory repertory) {
+        String key = this.getLock(repertory);
+        try {
+            // 如果更新条数小于1，证明库存不住，抛出异常
+            if (mapper.updateProduct(repertory) < 1) {
+                throw new SysException("库存不足,请联系在线客服");
+            }
+            return true;
         } finally {
             redisLock.unlock(key);
         }
